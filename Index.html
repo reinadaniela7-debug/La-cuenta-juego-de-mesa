@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Cuenta - Asistente de Juego (Edición Azul y Morada)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ocean: {
+                            50: '#f0f7ff',
+                            100: '#e0f0fe',
+                            200: '#bae0fd',
+                            300: '#7cc5fb',
+                            400: '#36a9f7',
+                            500: '#0c8de9',
+                            600: '#026fc7',
+                            700: '#0358a1',
+                            800: '#074b83',
+                            900: '#0c3f6e',
+                        }
+                    },
+                    fontFamily: {
+                        heading: ['Fredoka', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f3f0ff;
+            background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px);
+            background-size: 20px 20px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #1e293b;
+        }
+        .font-heading {
+            font-family: 'Fredoka', cursive, sans-serif;
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px -3px rgba(124, 58, 237, 0.08), 0 4px 10px -2px rgba(12, 141, 233, 0.04);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #7c3aed;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-ocean-800 via-purple-700 to-indigo-800 text-white shadow-lg sticky top-0 z-30 border-b border-purple-700/40">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer select-none" onclick="promptResetToHome()">
+                <div class="bg-white text-purple-700 p-2 rounded-xl shadow-md flex items-center justify-center font-bold text-xl w-10 h-10 font-heading">
+                    🧊
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold font-heading leading-tight tracking-wide flex items-center gap-1.5">
+                        LA CUENTA <span class="text-[10px] bg-purple-950/50 px-2 py-0.5 rounded-full text-purple-200 border border-purple-400/30 font-normal uppercase">Edición Azul & Morada</span>
+                    </h1>
+                    <p class="text-xs text-purple-100 font-medium opacity-90">Asistente oficial de partida</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <button onclick="openRulesModal()" class="px-3 py-1.5 bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-semibold rounded-xl transition duration-200 flex items-center gap-1.5 backdrop-blur-md border border-white/20">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span class="hidden sm:inline">Reglas & Cartas</span>
+                </button>
+                <button id="headerResetBtn" onclick="promptResetMatch()" class="hidden px-3 py-1.5 bg-purple-950/40 hover:bg-purple-950/70 text-white text-xs sm:text-sm font-semibold rounded-xl transition duration-200 flex items-center gap-1.5 border border-purple-400/30">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Reiniciar</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-4xl w-full mx-auto p-4 sm:p-6 flex-grow">
+
+        <!-- VIEW 1: SETUP -->
+        <section id="viewSetup" class="bg-white rounded-3xl p-6 sm:p-8 card-shadow border border-purple-100 transition-all">
+            <div class="text-center max-w-lg mx-auto mb-8">
+                <span class="bg-purple-50 text-purple-700 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-purple-200">
+                    2Tomatoes Games
+                </span>
+                <h2 class="text-3xl font-bold font-heading text-slate-800 mt-3">¿Cuántos vais a cenar?</h2>
+                <p class="text-slate-500 text-sm mt-1">El presupuesto inicial se asigna automáticamente según las reglas oficiales.</p>
+            </div>
+
+            <!-- Player count selector -->
+            <div class="mb-8">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 text-center">Número de Jugadores (3 a 8)</label>
+                <div class="grid grid-cols-6 gap-2 max-w-md mx-auto">
+                    <button type="button" onclick="setPlayerCount(3)" id="btnCount3" class="count-btn py-3 rounded-2xl font-heading font-bold text-lg border-2 transition">3</button>
+                    <button type="button" onclick="setPlayerCount(4)" id="btnCount4" class="count-btn py-3 rounded-2xl font-heading font-bold text-lg border-2 transition">4</button>
+                    <button type="button" onclick="setPlayerCount(5)" id="btnCount5" class="count-btn py-3 rounded-2xl font-heading font-bold text-lg border-2 transition">5</button>
+                    <button type="button" onclick="setPlayerCount(6)" id="btnCount6" class="count-btn py-3 rounded-2xl font-heading font-bold text-lg border-2 transition">6</button>
+                    <button type="button" onclick="setPlayerCount(7)" id="btnCount7" class="count-btn py-3 rounded-2xl font-heading font-bold text-lg border-2 transition">7</button>
+                    <button type="button" onclick="setPlayerCount(8)" id="btnCount8" class="count-btn py-3 rounded-2xl font-heading font-bold text-lg border-2 transition">8</button>
+                </div>
+            </div>
+
+            <!-- Savings Banner Info -->
+            <div class="bg-gradient-to-r from-ocean-50 to-purple-50 border border-purple-200 rounded-2xl p-4 max-w-md mx-auto mb-8 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-ocean-600 to-purple-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                        💶
+                    </div>
+                    <div>
+                        <div class="text-xs text-purple-950 font-bold uppercase">Ahorros Iniciales</div>
+                        <div class="text-slate-600 text-xs">Según reglamento oficial</div>
+                    </div>
+                </div>
+                <div id="initialBudgetBadge" class="text-2xl font-heading font-bold text-purple-800">
+                    900 € <span class="text-xs font-normal text-purple-600">/ pers.</span>
+                </div>
+            </div>
+
+            <!-- Player Names Input List -->
+            <div class="max-w-md mx-auto mb-8">
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center justify-between">
+                    <span>Nombre de los comensales</span>
+                    <button type="button" onclick="randomizeNames()" class="text-xs text-purple-600 hover:underline font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-dice text-purple-500"></i> Nombres aleatorios
+                    </button>
+                </h3>
+                <div id="playerInputsContainer" class="space-y-3">
+                    <!-- Dynamic inputs injected by JS -->
+                </div>
+            </div>
+
+            <!-- Start Game Button -->
+            <div class="text-center max-w-md mx-auto">
+                <button onclick="startGame()" class="w-full py-4 px-6 bg-gradient-to-r from-ocean-600 via-indigo-600 to-purple-600 hover:from-ocean-700 hover:to-purple-700 active:scale-[0.99] text-white text-lg font-heading font-bold rounded-2xl shadow-lg shadow-purple-600/30 transition duration-200 flex items-center justify-center gap-2">
+                    <span>¡EMPEZAR A TAPEAR!</span>
+                    <i class="fa-solid fa-utensils"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 2: GAME BOARD -->
+        <section id="viewGame" class="hidden space-y-6">
+
+            <!-- Round Header & Status Bar -->
+            <div class="bg-white rounded-2xl p-4 sm:p-5 card-shadow border border-purple-100 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-800 flex items-center justify-center text-xl font-heading font-bold">
+                        🍺
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Progreso de la noche</div>
+                        <h2 class="text-xl font-bold font-heading text-slate-800" id="currentRoundTitle">Bar / Ronda 1</h2>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="openPayModal('normal')" class="px-5 py-3 bg-gradient-to-r from-ocean-600 to-purple-600 hover:from-ocean-700 hover:to-purple-700 text-white font-heading font-bold text-sm sm:text-base rounded-xl shadow-md shadow-purple-600/20 transition flex items-center gap-2">
+                        <i class="fa-solid fa-receipt"></i>
+                        <span>PEDIR LA CUENTA</span>
+                    </button>
+                    <button onclick="openCalculatorModal()" title="Calculadora de Cartas" class="px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition flex items-center gap-2 text-sm shadow-md shadow-purple-600/20">
+                        <i class="fa-solid fa-calculator text-base"></i>
+                        <span class="hidden sm:inline">Calculadora</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Player Money Cards Grid -->
+            <div>
+                <div class="flex items-center justify-between mb-3 px-1">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Estado de Ahorros de los Jugadores</h3>
+                    <span class="text-xs text-slate-400 font-medium">El que llegue a 0€ pierde la partida</span>
+                </div>
+                <div id="playersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Dynamic player cards generated here -->
+                </div>
+            </div>
+
+            <!-- Action Quick Shortcut Cards -->
+            <div class="bg-gradient-to-r from-ocean-50/70 to-purple-50/80 border border-purple-200 rounded-2xl p-4 sm:p-5">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-purple-950 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-purple-600"></i>
+                    <span>Accesos Rápidos de Cartas Especiales</span>
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button onclick="openPayModal('a_medias')" class="p-3 bg-white hover:bg-purple-100/60 rounded-xl border border-purple-200 text-left transition flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-purple-600/10 text-purple-700 flex items-center justify-center font-bold text-sm font-heading">
+                            7
+                        </div>
+                        <div>
+                            <div class="font-bold text-sm text-slate-800">A MEDIAS</div>
+                            <div class="text-xs text-slate-500">División al 50% entre 2 jugadores</div>
+                        </div>
+                    </button>
+
+                    <button onclick="openPayModal('a_pachas')" class="p-3 bg-white hover:bg-purple-100/60 rounded-xl border border-purple-200 text-left transition flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-purple-600/10 text-purple-700 flex items-center justify-center font-bold text-sm font-heading">
+                            8
+                        </div>
+                        <div>
+                            <div class="font-bold text-sm text-slate-800">A PACHAS</div>
+                            <div class="text-xs text-slate-500">Repartir cuenta equitativamente entre varios</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Payment Log / History -->
+            <div class="bg-white rounded-2xl p-5 card-shadow border border-purple-100">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-heading font-bold text-slate-800 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-purple-600"></i>
+                        <span>Historial de Bares</span>
+                    </h3>
+                    <button id="undoBtn" onclick="undoLastRound()" class="text-xs font-bold text-slate-500 hover:text-purple-600 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1.5" disabled>
+                        <i class="fa-solid fa-rotate-left"></i> Deshacer último pago
+                    </button>
+                </div>
+
+                <div id="historyList" class="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                    <div class="text-center py-6 text-slate-400 text-sm italic">
+                        Aún no se ha pagado ninguna cuenta. ¡A tapear!
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: GAME OVER -->
+        <section id="viewGameOver" class="hidden bg-white rounded-3xl p-6 sm:p-10 card-shadow border border-purple-100 text-center space-y-8">
+            <div>
+                <span class="inline-block px-4 py-1.5 bg-purple-100 text-purple-900 font-bold text-xs uppercase tracking-widest rounded-full mb-3 border border-purple-200">
+                    ¡Fin de la Partida! 💸
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-heading font-bold text-slate-800">¡Alguien se ha quedado sin dinero!</h2>
+                <p class="text-slate-500 text-sm mt-1" id="bankruptMessage">Un participante no ha podido pagar la cuenta.</p>
+            </div>
+
+            <!-- Podium Winner Display -->
+            <div id="podiumContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-xl mx-auto items-end pt-4">
+                <!-- Injected via JS -->
+            </div>
+
+            <!-- Full Leaderboard Table -->
+            <div class="max-w-lg mx-auto bg-slate-50 rounded-2xl p-4 border border-slate-200 text-left">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Clasificación Final</h4>
+                <div id="finalLeaderboardList" class="space-y-2">
+                    <!-- Dynamic ranking items -->
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                <button onclick="startNewMatchSamePlayers()" class="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-ocean-600 to-purple-600 hover:from-ocean-700 hover:to-purple-700 text-white font-heading font-bold rounded-xl transition shadow-lg shadow-purple-600/20">
+                    <i class="fa-solid fa-arrow-rotate-right mr-1.5"></i> Revancha (Mismos jugadores)
+                </button>
+                <button onclick="showView('setup')" class="w-full sm:w-auto px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-heading font-bold rounded-xl transition">
+                    <i class="fa-solid fa-users mr-1.5"></i> Nueva Partida (Cambiar jugadores)
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200/60 bg-white/50 mt-8">
+        Basado en el juego de cartas <strong class="text-slate-600">La Cuenta</strong> de <span class="text-purple-600 font-semibold">2Tomatoes Games</span>.
+    </footer>
+
+    <!-- MODAL 1: CONFIRM RESET -->
+    <div id="confirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 card-shadow border border-purple-100 text-center space-y-4">
+            <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 mx-auto flex items-center justify-center text-2xl font-bold font-heading">
+                ❓
+            </div>
+            <h3 class="text-lg font-heading font-bold text-slate-800" id="confirmModalTitle">¿Estás seguro?</h3>
+            <p class="text-xs text-slate-500" id="confirmModalDesc">Esta acción reiniciará el dinero y los datos de la partida actual.</p>
+            <div class="grid grid-cols-2 gap-2 pt-2">
+                <button type="button" onclick="closeConfirmModal()" class="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
+                    Cancelar
+                </button>
+                <button type="button" id="confirmModalExecuteBtn" class="py-2.5 bg-gradient-to-r from-ocean-600 to-purple-600 hover:from-ocean-700 hover:to-purple-700 text-white text-xs font-bold rounded-xl transition shadow-md">
+                    Sí, Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: PAY THE BILL -->
+    <div id="payModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 card-shadow border border-purple-100 space-y-5 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-xl font-heading font-bold text-slate-800 flex items-center gap-2" id="payModalTitle">
+                    <i class="fa-solid fa-receipt text-purple-600"></i> Pedir La Cuenta
+                </h3>
+                <button onclick="closePayModal()" class="text-slate-400 hover:text-slate-600 text-lg w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="payModalError" class="hidden bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl font-semibold flex items-center gap-2">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="payModalErrorMsg">Introduce un importe válido.</span>
+            </div>
+
+            <!-- Pay Mode Toggle -->
+            <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 rounded-xl text-xs font-bold text-slate-600">
+                <button type="button" onclick="setPayType('normal')" id="payTypeNormal" class="py-2 rounded-lg transition text-center">Un Jugador</button>
+                <button type="button" onclick="setPayType('a_medias')" id="payTypeAMedias" class="py-2 rounded-lg transition text-center">A Medias (7)</button>
+                <button type="button" onclick="setPayType('a_pachas')" id="payTypeAPachas" class="py-2 rounded-lg transition text-center">A Pachas (8)</button>
+            </div>
+
+            <!-- Amount Input -->
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Importe Total de la Cuenta (€)</label>
+                <div class="relative">
+                    <input type="number" id="payAmountInput" min="0" step="5" placeholder="Ej. 120" class="w-full pl-4 pr-12 py-3.5 bg-slate-50 border-2 border-slate-200 focus:border-purple-500 focus:bg-white rounded-2xl text-2xl font-heading font-bold text-slate-800 outline-none transition">
+                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-2xl font-heading text-slate-400">€</span>
+                </div>
+            </div>
+
+            <!-- Mode 1: Single Payer Selection -->
+            <div id="sectionSinglePayer" class="space-y-2">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">¿Quién paga la cuenta?</label>
+                <div id="singlePayerList" class="grid grid-cols-2 gap-2">
+                    <!-- Dynamic choices -->
+                </div>
+            </div>
+
+            <!-- Mode 2: A Medias -->
+            <div id="sectionAMedias" class="hidden space-y-3 bg-purple-50/70 p-4 rounded-2xl border border-purple-200">
+                <p class="text-xs text-purple-950 font-medium">
+                    <i class="fa-solid fa-circle-info mr-1 text-purple-600"></i> El participante que pidió la cuenta y otro seleccionado pagan el 50% cada uno.
+                </p>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-purple-950 mb-1">Participante 1 (quien pide):</label>
+                    <select id="aMediasP1" class="w-full p-3 bg-white border border-purple-200 rounded-xl text-sm font-semibold text-slate-800 outline-none"></select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-purple-950 mb-1">Participante 2 (escogido):</label>
+                    <select id="aMediasP2" class="w-full p-3 bg-white border border-purple-200 rounded-xl text-sm font-semibold text-slate-800 outline-none"></select>
+                </div>
+            </div>
+
+            <!-- Mode 3: A Pachas -->
+            <div id="sectionAPachas" class="hidden space-y-2 bg-purple-50/70 p-4 rounded-2xl border border-purple-200">
+                <p class="text-xs text-purple-950 font-medium mb-2">
+                    <i class="fa-solid fa-circle-info mr-1 text-purple-600"></i> Selecciona los participantes entre los que se divide la cuenta igualitariamente:
+                </p>
+                <div id="aPachasCheckboxes" class="space-y-2">
+                    <!-- Dynamic checkboxes -->
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button onclick="processPayment()" class="w-full py-4 bg-gradient-to-r from-ocean-600 to-purple-600 hover:from-ocean-700 hover:to-purple-700 active:scale-[0.98] text-white font-heading font-bold text-lg rounded-2xl shadow-lg shadow-purple-600/30 transition">
+                CONFIRMAR PAGO DE LA CUENTA
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 3: CALCULATOR -->
+    <div id="calculatorModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 card-shadow border border-purple-100 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-xl font-heading font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-calculator text-purple-600"></i> Calculadora de la Ronda
+                </h3>
+                <button onclick="closeCalculatorModal()" class="text-slate-400 hover:text-slate-600 text-lg w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-500">Suma y resta automáticamente tus cartas de Tapa, Vino y Propina jugadas en esta ronda.</p>
+
+            <div class="space-y-3">
+                <!-- Tapas & Burned dishes calculator section -->
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-bold text-slate-700">Calculadora de Cartas de Tapa (€)</label>
+                        <div class="flex items-center gap-1">
+                            <button type="button" onclick="undoTapa()" class="text-[11px] font-bold text-amber-600 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 px-2 py-1 rounded-lg transition flex items-center gap-1">
+                                <i class="fa-solid fa-rotate-left"></i> Deshacer
+                            </button>
+                            <button type="button" onclick="clearTapas()" class="text-[11px] font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-lg transition flex items-center gap-1">
+                                <i class="fa-solid fa-trash-can"></i> Borrar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tapas Display & History (Expanded & Scrollable) -->
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-inner space-y-2">
+                        <div id="tapasHistoryDisplay" class="text-xs text-slate-600 min-h-[52px] max-h-28 overflow-y-auto font-mono bg-slate-50 p-2 rounded-lg border border-slate-100 break-words leading-relaxed">
+                            Sin tapas ni restas acumuladas
+                        </div>
+                        <div class="flex items-center justify-between pt-1">
+                            <span class="text-xs font-semibold text-slate-500">Subtotal Tapas:</span>
+                            <div class="flex items-baseline gap-1">
+                                <input type="number" id="calcTapas" value="0" class="w-28 text-right font-heading font-bold text-slate-800 text-xl outline-none bg-transparent" oninput="updateCalcTotal()">
+                                <span class="text-sm font-bold text-slate-400">€</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Tapa Addition Buttons -->
+                    <div>
+                        <div class="text-[11px] font-bold text-slate-500 mb-1.5 flex items-center gap-1">
+                            <i class="fa-solid fa-plus text-emerald-500"></i> Sumar Tapa rápida:
+                        </div>
+                        <div class="grid grid-cols-5 gap-1.5 text-xs font-bold">
+                            <button type="button" onclick="addTapaCard(10)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+10€</button>
+                            <button type="button" onclick="addTapaCard(20)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+20€</button>
+                            <button type="button" onclick="addTapaCard(30)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+30€</button>
+                            <button type="button" onclick="addTapaCard(40)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+40€</button>
+                            <button type="button" onclick="addTapaCard(50)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+50€</button>
+                            <button type="button" onclick="addTapaCard(60)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+60€</button>
+                            <button type="button" onclick="addTapaCard(70)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+70€</button>
+                            <button type="button" onclick="addTapaCard(80)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+80€</button>
+                            <button type="button" onclick="addTapaCard(90)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+90€</button>
+                            <button type="button" onclick="addTapaCard(100)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+100€</button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Subtraction Buttons (Platos Quemados) -->
+                    <div>
+                        <div class="text-[11px] font-bold text-slate-500 mb-1.5 flex items-center gap-1">
+                            <i class="fa-solid fa-fire text-red-500"></i> Resta rápida (Platos Quemados):
+                        </div>
+                        <div class="grid grid-cols-5 gap-1.5 text-xs font-bold">
+                            <button type="button" onclick="addTapaCard(-10)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-10€</button>
+                            <button type="button" onclick="addTapaCard(-20)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-20€</button>
+                            <button type="button" onclick="addTapaCard(-30)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-30€</button>
+                            <button type="button" onclick="addTapaCard(-40)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-40€</button>
+                            <button type="button" onclick="addTapaCard(-50)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-50€</button>
+                            <button type="button" onclick="addTapaCard(-60)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-60€</button>
+                            <button type="button" onclick="addTapaCard(-70)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-70€</button>
+                            <button type="button" onclick="addTapaCard(-80)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-80€</button>
+                            <button type="button" onclick="addTapaCard(-90)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-90€</button>
+                            <button type="button" onclick="addTapaCard(-100)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-100€</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plus Indicator -->
+                <div class="flex justify-center -my-1">
+                    <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 font-bold text-xs flex items-center justify-center shadow-sm">+</span>
+                </div>
+
+                <!-- Wine Card Counter section -->
+                <div class="bg-purple-50/80 p-3.5 rounded-2xl border border-purple-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <div>
+                            <div class="text-xs font-bold text-purple-950 flex items-center gap-1.5">
+                                <i class="fa-solid fa-wine-glass text-purple-600"></i> Cartas de Vino jugadas
+                            </div>
+                            <div class="text-[11px] text-purple-800/80">Escala oficial (1=30€, 2=60€, 3=120€, 4=180€, 5=240€)</div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center border border-purple-300 rounded-xl bg-white overflow-hidden shadow-sm">
+                            <button type="button" onclick="adjustWineCount(-1)" class="w-10 h-10 bg-purple-50 hover:bg-purple-100 text-purple-800 font-bold text-lg flex items-center justify-center transition">-</button>
+                            <input type="number" id="calcWineCount" min="0" max="20" value="0" class="w-12 text-center font-heading font-bold text-purple-900 text-lg outline-none bg-transparent">
+                            <button type="button" onclick="adjustWineCount(1)" class="w-10 h-10 bg-purple-50 hover:bg-purple-100 text-purple-800 font-bold text-lg flex items-center justify-center transition">+</button>
+                        </div>
+                        <div class="flex-grow text-right">
+                            <div class="text-[11px] text-purple-800 uppercase font-semibold">Subtotal Vino:</div>
+                            <div id="calcWineSubtotalDisplay" class="text-lg font-heading font-bold text-purple-700">0 €</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plus Indicator -->
+                <div class="flex justify-center -my-1">
+                    <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 font-bold text-xs flex items-center justify-center shadow-sm">+</span>
+                </div>
+
+                <!-- Propina card section -->
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                <i class="fa-solid fa-coins text-amber-500"></i> Propina (Carta 9)
+                            </div>
+                            <div class="text-[11px] text-slate-500">Precio de la tapa más barata de la mesa</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-[10px] text-slate-400 font-semibold uppercase">Subtotal Propina:</div>
+                            <div id="calcTipSubtotalDisplay" class="text-base font-heading font-bold text-slate-800">0 €</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 items-center pt-1">
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Nº Cartas Propina</label>
+                            <div class="flex items-center border border-slate-300 rounded-xl bg-white overflow-hidden shadow-sm">
+                                <button type="button" onclick="adjustTipCount(-1)" class="w-9 h-9 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-base flex items-center justify-center transition">-</button>
+                                <input type="number" id="calcTipCount" min="0" max="20" value="0" class="w-10 text-center font-heading font-bold text-slate-800 text-base outline-none bg-transparent" oninput="updateCalcTotal()">
+                                <button type="button" onclick="adjustTipCount(1)" class="w-9 h-9 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-base flex items-center justify-center transition">+</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Importe c/u (€)</label>
+                            <div class="relative">
+                                <input type="number" id="calcTip" min="0" step="5" placeholder="0" class="w-full p-2 pr-6 bg-white border border-slate-300 rounded-xl text-right font-semibold text-slate-800 outline-none text-sm" oninput="updateCalcTotal()">
+                                <span class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">€</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Result Display -->
+            <div class="pt-3 border-t border-slate-200 flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Calculado de la Cuenta:</span>
+                <span id="calcTotalDisplay" class="text-3xl font-heading font-bold text-purple-700">0 €</span>
+            </div>
+
+            <button onclick="useCalculatedAmount()" class="w-full py-3.5 bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-heading font-bold text-base rounded-xl transition shadow-md shadow-purple-600/20">
+                Usar este total para Pedir la Cuenta
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 4: RULES CHEAT SHEET -->
+    <div id="rulesModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 card-shadow border border-purple-100 space-y-5 max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-xl font-heading font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-book-open text-purple-600"></i> Guía Rápida de Cartas Especiales
+                </h3>
+                <button onclick="closeRulesModal()" class="text-slate-400 hover:text-slate-600 text-lg w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                    <div class="font-bold text-slate-800 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded bg-purple-600 text-white flex items-center justify-center text-[10px] font-heading">1</span>
+                        PLATO QUEMADO
+                    </div>
+                    <p class="text-slate-600">Bloquea un tipo de tapa. No se pueden jugar más tapas de ese tipo en la ronda.</p>
+                </div>
+
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                    <div class="font-bold text-slate-800 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded bg-purple-600 text-white flex items-center justify-center text-[10px] font-heading">2</span>
+                        CAMBIO DE SENTIDO
+                    </div>
+                    <p class="text-slate-600">Invierte el orden de turno durante el resto de la ronda actual.</p>
+                </div>
+
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                    <div class="font-bold text-slate-800 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded bg-purple-600 text-white flex items-center justify-center text-[10px] font-heading">3</span>
+                        TOILETTE
+                    </div>
+                    <p class="text-slate-600">Vas al baño hasta tu próximo turno. Nadie te puede escoger, ni puedes pagar la cuenta.</p>
+                </div>
+
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                    <div class="font-bold text-slate-800 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded bg-purple-600 text-white flex items-center justify-center text-[10px] font-heading">4</span>
+                        CAFÉ
+                    </div>
+                    <p class="text-slate-600">Requiere al menos 1 tapa de cada tipo en mesa. Prohíbe jugar más cartas esta ronda.</p>
+                </div>
+
+                <div class="p-3 bg-purple-50 rounded-xl border border-purple-200 space-y-1">
+                    <div class="font-bold text-purple-900 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded bg-purple-600 text-white flex items-center justify-center text-[10px] font-heading">7</span>
+                        A MEDIAS
+                    </div>
+                    <p class="text-purple-900">Sólo tras pedir la cuenta. Elige a alguien. Cada uno paga el 50% de la cuenta.</p>
+                </div>
+
+                <div class="p-3 bg-purple-50 rounded-xl border border-purple-200 space-y-1">
+                    <div class="font-bold text-purple-900 flex items-center gap-1.5">
+                        <span class="w-5 h-5 rounded bg-purple-600 text-white flex items-center justify-center text-[10px] font-heading">8</span>
+                        A PACHAS
+                    </div>
+                    <p class="text-purple-900">Se divide la cuenta entre todos los seleccionados equitativamente.</p>
+                </div>
+            </div>
+
+            <div class="text-center pt-2">
+                <button onclick="closeRulesModal()" class="px-6 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition">
+                    Entendido, volver al juego
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- GAME CONFIG & CONSTANTS ---
+        const BUDGET_TABLE = {
+            3: 900,
+            4: 1000,
+            5: 1100,
+            6: 1200,
+            7: 1300,
+            8: 1400
+        };
+
+        const DEFAULT_NAMES = ["Dani", "Laura", "Zaira", "Jordi", "Maria", "Litus", "Rosa", "Ariadna"];
+        const AVATAR_EMOJIS = ["🧑‍🍳", "🥘", "🍷", "🍰", "🥩", "🥗", "🦐", "🍕"];
+
+        // Official wine scaling table: 1=30, 2=60, 3=120, 4=180, 5=240
+        const WINE_PRICES_SINGLE_SET = [0, 30, 60, 120, 180, 240];
+
+        // --- GAME STATE ---
+        let gameState = {
+            playerCount: 3,
+            initialBudget: 900,
+            players: [], // Array of { id, name, emoji, currentMoney, totalPaid }
+            round: 1,
+            history: [], // Array of round records for undo
+            payType: 'normal',
+            selectedSinglePayerId: null
+        };
+
+        let tapasList = [];
+
+        // --- SETUP VIEW FUNCTIONS ---
+        function setPlayerCount(count) {
+            gameState.playerCount = count;
+            gameState.initialBudget = BUDGET_TABLE[count] || 900;
+            
+            // Update badge
+            const badge = document.getElementById('initialBudgetBadge');
+            if (badge) {
+                badge.innerHTML = `${gameState.initialBudget} € <span class="text-xs font-normal text-purple-600">/ pers.</span>`;
+            }
+
+            // Update count buttons UI
+            for (let i = 3; i <= 8; i++) {
+                const btn = document.getElementById(`btnCount${i}`);
+                if (btn) {
+                    if (i === count) {
+                        btn.className = "count-btn py-3 rounded-2xl font-heading font-bold text-lg border-2 border-purple-600 bg-gradient-to-r from-ocean-600 to-purple-600 text-white shadow-md transition";
+                    } else {
+                        btn.className = "count-btn py-3 rounded-2xl font-heading font-bold text-lg border-2 border-slate-200 text-slate-700 hover:border-purple-400 hover:bg-purple-50 transition";
+                    }
+                }
+            }
+
+            renderPlayerInputs();
+        }
+
+        function renderPlayerInputs() {
+            const container = document.getElementById('playerInputsContainer');
+            if (!container) return;
+
+            // Save existing input values if user already entered names
+            const existingValues = [];
+            for (let i = 0; i < 8; i++) {
+                const inp = document.getElementById(`playerName_${i}`);
+                if (inp && inp.value.trim() !== '') {
+                    existingValues[i] = inp.value.trim();
+                }
+            }
+
+            container.innerHTML = '';
+            for (let i = 0; i < gameState.playerCount; i++) {
+                const defaultName = existingValues[i] || DEFAULT_NAMES[i] || `Jugador ${i + 1}`;
+                const emoji = AVATAR_EMOJIS[i % AVATAR_EMOJIS.length];
+
+                const row = document.createElement('div');
+                row.className = 'flex items-center gap-2';
+                row.innerHTML = `
+                    <span class="w-10 h-10 rounded-xl bg-purple-100 border border-purple-200 flex items-center justify-center text-lg shrink-0">${emoji}</span>
+                    <input type="text" id="playerName_${i}" value="${escapeHtml(defaultName)}" placeholder="Nombre jugador ${i + 1}" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-purple-500 focus:bg-white rounded-xl font-medium text-slate-800 outline-none transition text-sm">
+                `;
+                container.appendChild(row);
+            }
+        }
+
+        function randomizeNames() {
+            const shuffled = [...DEFAULT_NAMES].sort(() => Math.random() - 0.5);
+            for (let i = 0; i < gameState.playerCount; i++) {
+                const inp = document.getElementById(`playerName_${i}`);
+                if (inp) inp.value = shuffled[i] || `Jugador ${i + 1}`;
+            }
+        }
+
+        function startGame() {
+            const players = [];
+            for (let i = 0; i < gameState.playerCount; i++) {
+                const inp = document.getElementById(`playerName_${i}`);
+                const name = (inp && inp.value.trim()) ? inp.value.trim() : (DEFAULT_NAMES[i] || `Jugador ${i + 1}`);
+                players.push({
+                    id: 'player_' + i,
+                    name: name,
+                    emoji: AVATAR_EMOJIS[i % AVATAR_EMOJIS.length],
+                    currentMoney: gameState.initialBudget,
+                    totalPaid: 0
+                });
+            }
+
+            gameState.players = players;
+            gameState.selectedSinglePayerId = players[0]?.id || null;
+            gameState.round = 1;
+            gameState.history = [];
+
+            showView('game');
+            renderGameBoard();
+        }
+
+        function renderGameBoard() {
+            // Update Round Title
+            document.getElementById('currentRoundTitle').innerText = `Bar / Ronda ${gameState.round}`;
+
+            // Render Player Cards
+            const grid = document.getElementById('playersGrid');
+            grid.innerHTML = '';
+
+            gameState.players.forEach(p => {
+                const percentage = Math.max(0, Math.min(100, (p.currentMoney / gameState.initialBudget) * 100));
+
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-2xl bg-white border border-slate-200 card-shadow space-y-3 relative overflow-hidden transition`;
+                
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-2xl">${p.emoji}</span>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-base leading-tight">${escapeHtml(p.name)}</h4>
+                                <span class="text-[10px] text-slate-400 font-medium">Comensal</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-heading font-bold text-xl ${p.currentMoney <= 200 ? 'text-red-600' : 'text-purple-700'}">
+                                ${p.currentMoney.toLocaleString('es-ES')} €
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div class="h-full ${p.currentMoney <= 200 ? 'bg-red-500' : 'bg-gradient-to-r from-ocean-500 to-purple-600'} transition-all duration-300" style="width: ${percentage}%"></div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                        <span>Total gastado: ${p.totalPaid.toLocaleString('es-ES')} €</span>
+                        <span>Inicial: ${gameState.initialBudget} €</span>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+
+            // Render History List
+            const historyList = document.getElementById('historyList');
+            const undoBtn = document.getElementById('undoBtn');
+
+            if (gameState.history.length === 0) {
+                historyList.innerHTML = `<div class="text-center py-6 text-slate-400 text-sm italic">Aún no se ha pagado ninguna cuenta. ¡A tapear!</div>`;
+                undoBtn.disabled = true;
+            } else {
+                historyList.innerHTML = '';
+                undoBtn.disabled = false;
+
+                [...gameState.history].reverse().forEach(item => {
+                    const hCard = document.createElement('div');
+                    hCard.className = "p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs";
+                    
+                    let payDetail = "";
+                    if (item.type === 'normal') {
+                        payDetail = `Pagó <strong>${escapeHtml(item.payers[0].name)}</strong>`;
+                    } else if (item.type === 'a_medias') {
+                        payDetail = `A Medias: <strong>${escapeHtml(item.payers[0].name)}</strong> y <strong>${escapeHtml(item.payers[1].name)}</strong> (${item.amountPerPerson}€ c/u)`;
+                    } else if (item.type === 'a_pachas') {
+                        payDetail = `A Pachas entre ${item.payers.length} personas (${item.amountPerPerson}€ c/u)`;
+                    }
+
+                    hCard.innerHTML = `
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-6 h-6 rounded-lg bg-purple-100 text-purple-700 font-bold flex items-center justify-center text-xs">
+                                R${item.round}
+                            </span>
+                            <div>
+                                <div class="text-slate-800">${payDetail}</div>
+                            </div>
+                        </div>
+                        <div class="font-heading font-bold text-slate-800 text-sm">
+                            ${item.amount.toLocaleString('es-ES')} €
+                        </div>
+                    `;
+                    historyList.appendChild(hCard);
+                });
+            }
+        }
+
+        // --- PAYMENT MODAL FUNCTIONS ---
+        function openPayModal(type = 'normal') {
+            document.getElementById('payModalError').classList.add('hidden');
+            document.getElementById('payAmountInput').value = '';
+            
+            if (!gameState.selectedSinglePayerId || !gameState.players.some(p => p.id === gameState.selectedSinglePayerId)) {
+                gameState.selectedSinglePayerId = gameState.players[0]?.id || null;
+            }
+
+            setPayType(type);
+            document.getElementById('payModal').classList.remove('hidden');
+        }
+
+        function closePayModal() {
+            document.getElementById('payModal').classList.add('hidden');
+        }
+
+        function setPayType(type) {
+            gameState.payType = type;
+
+            ['TypeNormal', 'TypeAMedias', 'TypeAPachas'].forEach(id => {
+                const btn = document.getElementById(`pay${id}`);
+                if (btn) btn.className = "py-2 rounded-lg transition text-center";
+            });
+
+            document.getElementById('sectionSinglePayer').classList.add('hidden');
+            document.getElementById('sectionAMedias').classList.add('hidden');
+            document.getElementById('sectionAPachas').classList.add('hidden');
+
+            if (type === 'normal') {
+                document.getElementById('payTypeNormal').className = "py-2 rounded-lg transition text-center bg-white text-purple-700 shadow-sm font-bold";
+                document.getElementById('sectionSinglePayer').classList.remove('hidden');
+                renderSinglePayerOptions();
+            } else if (type === 'a_medias') {
+                document.getElementById('payTypeAMedias').className = "py-2 rounded-lg transition text-center bg-white text-purple-700 shadow-sm font-bold";
+                document.getElementById('sectionAMedias').classList.remove('hidden');
+                renderAMediasOptions();
+            } else if (type === 'a_pachas') {
+                document.getElementById('payTypeAPachas').className = "py-2 rounded-lg transition text-center bg-white text-purple-700 shadow-sm font-bold";
+                document.getElementById('sectionAPachas').classList.remove('hidden');
+                renderAPachasOptions();
+            }
+        }
+
+        function renderSinglePayerOptions() {
+            const list = document.getElementById('singlePayerList');
+            if (!list) return;
+            list.innerHTML = '';
+
+            if (!gameState.selectedSinglePayerId || !gameState.players.some(p => p.id === gameState.selectedSinglePayerId)) {
+                gameState.selectedSinglePayerId = gameState.players[0]?.id || null;
+            }
+
+            gameState.players.forEach(p => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.onclick = () => {
+                    gameState.selectedSinglePayerId = p.id;
+                    renderSinglePayerOptions();
+                };
+                
+                const isSelected = gameState.selectedSinglePayerId === p.id;
+                btn.className = `p-3 rounded-xl border text-left flex items-center justify-between transition ${isSelected ? 'border-purple-600 bg-purple-50 text-purple-900 font-bold ring-2 ring-purple-500/20' : 'border-slate-200 hover:bg-slate-50 text-slate-700'}`;
+                btn.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span>${p.emoji}</span>
+                        <span class="text-xs">${escapeHtml(p.name)}</span>
+                    </div>
+                    <span class="text-xs opacity-75">${p.currentMoney.toLocaleString('es-ES')}€</span>
+                `;
+                list.appendChild(btn);
+            });
+        }
+
+        function renderAMediasOptions() {
+            const select1 = document.getElementById('aMediasP1');
+            const select2 = document.getElementById('aMediasP2');
+            select1.innerHTML = '';
+            select2.innerHTML = '';
+
+            gameState.players.forEach((p) => {
+                const opt1 = new Option(`${p.emoji} ${p.name} (${p.currentMoney}€)`, p.id);
+                const opt2 = new Option(`${p.emoji} ${p.name} (${p.currentMoney}€)`, p.id);
+                select1.add(opt1);
+                select2.add(opt2);
+            });
+
+            if (gameState.players.length > 1) {
+                select2.selectedIndex = 1;
+            }
+        }
+
+        function renderAPachasOptions() {
+            const container = document.getElementById('aPachasCheckboxes');
+            container.innerHTML = '';
+
+            gameState.players.forEach(p => {
+                const label = document.createElement('label');
+                label.className = "flex items-center justify-between p-2.5 bg-white rounded-xl border border-purple-200 cursor-pointer hover:bg-purple-50/50 transition";
+                label.innerHTML = `
+                    <div class="flex items-center gap-2 text-xs font-semibold text-slate-800">
+                        <input type="checkbox" value="${p.id}" checked class="apachas-cb w-4 h-4 rounded text-purple-600 focus:ring-purple-500 border-slate-300">
+                        <span>${p.emoji} ${escapeHtml(p.name)}</span>
+                    </div>
+                    <span class="text-xs text-slate-500 font-normal">${p.currentMoney}€ disponible</span>
+                `;
+                container.appendChild(label);
+            });
+        }
+
+        function processPayment() {
+            const amountInput = document.getElementById('payAmountInput');
+            const amount = parseFloat(amountInput.value);
+
+            const errBanner = document.getElementById('payModalError');
+            const errMsg = document.getElementById('payModalErrorMsg');
+
+            if (isNaN(amount) || amount <= 0) {
+                errMsg.innerText = "Por favor introduce un importe válido de la cuenta.";
+                errBanner.classList.remove('hidden');
+                return;
+            }
+
+            let payersList = [];
+            let amountPerPerson = 0;
+
+            if (gameState.payType === 'normal') {
+                const payer = gameState.players.find(p => p.id === gameState.selectedSinglePayerId);
+                if (!payer) {
+                    errMsg.innerText = "Selecciona un jugador para realizar el pago.";
+                    errBanner.classList.remove('hidden');
+                    return;
+                }
+                payersList = [payer];
+                amountPerPerson = amount;
+            } else if (gameState.payType === 'a_medias') {
+                const id1 = document.getElementById('aMediasP1').value;
+                const id2 = document.getElementById('aMediasP2').value;
+                if (id1 === id2) {
+                    errMsg.innerText = "Debes seleccionar dos personas distintas para dividir A Medias.";
+                    errBanner.classList.remove('hidden');
+                    return;
+                }
+                const p1 = gameState.players.find(p => p.id === id1);
+                const p2 = gameState.players.find(p => p.id === id2);
+                payersList = [p1, p2];
+                amountPerPerson = Math.round((amount / 2) * 100) / 100;
+            } else if (gameState.payType === 'a_pachas') {
+                const checkedBoxes = document.querySelectorAll('.apachas-cb:checked');
+                if (checkedBoxes.length === 0) {
+                    errMsg.innerText = "Selecciona al menos a un participante para A Pachas.";
+                    errBanner.classList.remove('hidden');
+                    return;
+                }
+                const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
+                payersList = gameState.players.filter(p => selectedIds.includes(p.id));
+                amountPerPerson = Math.round((amount / payersList.length) * 100) / 100;
+            }
+
+            // Save snapshot for Undo
+            const historyItem = {
+                round: gameState.round,
+                amount: amount,
+                type: gameState.payType,
+                payers: payersList.map(p => ({ id: p.id, name: p.name })),
+                amountPerPerson: amountPerPerson,
+                previousState: JSON.parse(JSON.stringify(gameState.players))
+            };
+
+            // Deduct money
+            payersList.forEach(p => {
+                p.currentMoney -= amountPerPerson;
+                p.totalPaid += amountPerPerson;
+            });
+
+            gameState.history.push(historyItem);
+            gameState.round++;
+
+            closePayModal();
+
+            // Check if any player goes bankrupt (money <= 0)
+            const bankruptPlayer = gameState.players.find(p => p.currentMoney <= 0);
+            if (bankruptPlayer) {
+                triggerGameOver(bankruptPlayer);
+            } else {
+                renderGameBoard();
+            }
+        }
+
+        function undoLastRound() {
+            if (gameState.history.length === 0) return;
+            const lastItem = gameState.history.pop();
+            gameState.players = lastItem.previousState;
+            gameState.round = Math.max(1, gameState.round - 1);
+            renderGameBoard();
+        }
+
+        function startNewMatchSamePlayers() {
+            gameState.players.forEach(p => {
+                p.currentMoney = gameState.initialBudget;
+                p.totalPaid = 0;
+            });
+            gameState.round = 1;
+            gameState.history = [];
+            showView('game');
+            renderGameBoard();
+        }
+
+        // --- CALCULATOR FUNCTIONS ---
+        function addTapaCard(val) {
+            tapasList.push(val);
+            renderTapasCalc();
+        }
+
+        function undoTapa() {
+            if (tapasList.length > 0) {
+                tapasList.pop();
+                renderTapasCalc();
+            }
+        }
+
+        function clearTapas() {
+            tapasList = [];
+            const input = document.getElementById('calcTapas');
+            if (input) input.value = 0;
+            renderTapasCalc();
+        }
+
+        function renderTapasCalc() {
+            const display = document.getElementById('tapasHistoryDisplay');
+            const input = document.getElementById('calcTapas');
+            
+            const sumList = tapasList.reduce((a, b) => a + b, 0);
+
+            if (tapasList.length === 0) {
+                if (display) display.innerText = "Sin tapas ni restas acumuladas";
+            } else {
+                let formattedHistory = tapasList.map((val, idx) => {
+                    if (idx === 0) return `${val > 0 ? '+' : ''}${val}`;
+                    return val >= 0 ? `+ ${val}` : `- ${Math.abs(val)}`;
+                }).join(' ');
+                
+                if (display) {
+                    display.innerText = `${formattedHistory} = ${sumList} €`;
+                    display.scrollTop = display.scrollHeight;
+                }
+            }
+
+            if (tapasList.length > 0) {
+                if (input) input.value = sumList;
+            }
+            updateCalcTotal();
+        }
+
+        function openCalculatorModal() {
+            clearTapas();
+            document.getElementById('calcWineCount').value = '0';
+            document.getElementById('calcTipCount').value = '0';
+            document.getElementById('calcTip').value = '';
+            updateCalcTotal();
+            document.getElementById('calculatorModal').classList.remove('hidden');
+        }
+
+        function closeCalculatorModal() {
+            document.getElementById('calculatorModal').classList.add('hidden');
+        }
+
+        function adjustWineCount(delta) {
+            const wineInput = document.getElementById('calcWineCount');
+            let val = parseInt(wineInput.value) || 0;
+            val = Math.max(0, val + delta);
+            wineInput.value = val;
+            updateCalcTotal();
+        }
+
+        function adjustTipCount(delta) {
+            const tipCountInput = document.getElementById('calcTipCount');
+            let val = parseInt(tipCountInput.value) || 0;
+            val = Math.max(0, val + delta);
+            tipCountInput.value = val;
+            updateCalcTotal();
+        }
+
+        function calculateWineSubtotal(wineCount) {
+            if (wineCount <= 0) return 0;
+            const fullSets = Math.floor(wineCount / 5);
+            const remainder = wineCount % 5;
+            return (fullSets * 240) + WINE_PRICES_SINGLE_SET[remainder];
+        }
+
+        function setupCalculatorInputs() {
+            ['calcTapas', 'calcWineCount', 'calcTipCount', 'calcTip'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('input', updateCalcTotal);
+                }
+            });
+        }
+
+        function updateCalcTotal() {
+            const tapas = parseFloat(document.getElementById('calcTapas').value) || 0;
+            const wineCount = parseInt(document.getElementById('calcWineCount').value) || 0;
+            const wineSubtotal = calculateWineSubtotal(wineCount);
+
+            const tipCount = parseInt(document.getElementById('calcTipCount').value) || 0;
+            const tipVal = parseFloat(document.getElementById('calcTip').value) || 0;
+            const tipSubtotal = tipCount * tipVal;
+
+            const wineDisplay = document.getElementById('calcWineSubtotalDisplay');
+            if (wineDisplay) wineDisplay.innerText = `${wineSubtotal.toLocaleString('es-ES')} €`;
+
+            const tipDisplay = document.getElementById('calcTipSubtotalDisplay');
+            if (tipDisplay) tipDisplay.innerText = `${tipSubtotal.toLocaleString('es-ES')} €`;
+
+            const total = tapas + wineSubtotal + tipSubtotal;
+            const totalDisplay = document.getElementById('calcTotalDisplay');
+            if (totalDisplay) totalDisplay.innerText = `${total.toLocaleString('es-ES')} €`;
+            return total;
+        }
+
+        function useCalculatedAmount() {
+            const total = updateCalcTotal();
+            closeCalculatorModal();
+            openPayModal('normal');
+            document.getElementById('payAmountInput').value = total;
+        }
+
+        // --- RESET & CONFIRM MODALS ---
+        function promptResetMatch() {
+            showConfirmModal(
+                '¿Reiniciar Partida?',
+                'Se borrará el historial de pagos y todos los jugadores volverán a sus ahorros iniciales.',
+                () => {
+                    startNewMatchSamePlayers();
+                }
+            );
+        }
+
+        function promptResetToHome() {
+            if (document.getElementById('viewGame').classList.contains('hidden')) {
+                showView('setup');
+                return;
+            }
+            showConfirmModal(
+                '¿Volver al Menú Principal?',
+                'Saldrás de la partida actual para cambiar los nombres o el número de jugadores.',
+                () => {
+                    showView('setup');
+                }
+            );
+        }
+
+        function showConfirmModal(title, desc, onExecute) {
+            document.getElementById('confirmModalTitle').innerText = title;
+            document.getElementById('confirmModalDesc').innerText = desc;
+            
+            const btn = document.getElementById('confirmModalExecuteBtn');
+            btn.onclick = () => {
+                closeConfirmModal();
+                if (typeof onExecute === 'function') onExecute();
+            };
+
+            document.getElementById('confirmModal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+        }
+
+        function triggerGameOver(bankruptPlayer) {
+            renderGameBoard();
+
+            const ranked = [...gameState.players].sort((a, b) => b.currentMoney - a.currentMoney);
+            const winner = ranked[0];
+
+            document.getElementById('bankruptMessage').innerHTML = `
+                <strong>${escapeHtml(bankruptPlayer.name)}</strong> se ha quedado con <strong>${bankruptPlayer.currentMoney.toLocaleString('es-ES')} €</strong> y ha terminado la partida.
+            `;
+
+            // Render Podium
+            const podium = document.getElementById('podiumContainer');
+            podium.innerHTML = '';
+
+            const topPlayers = ranked.slice(0, 3);
+            const podiumOrder = topPlayers.length >= 3 ? [topPlayers[1], topPlayers[0], topPlayers[2]] : topPlayers;
+
+            podiumOrder.forEach((player) => {
+                if (!player) return;
+                const isWinner = player.id === winner.id;
+                const isBankrupt = player.id === bankruptPlayer.id;
+
+                const col = document.createElement('div');
+                col.className = `flex flex-col items-center ${isWinner ? 'order-1 sm:order-2' : 'order-2 sm:order-1'}`;
+                col.innerHTML = `
+                    <div class="text-4xl mb-1">${player.emoji}</div>
+                    <div class="font-bold text-sm text-slate-800">${escapeHtml(player.name)}</div>
+                    <div class="font-heading font-bold text-lg text-purple-700">${player.currentMoney.toLocaleString('es-ES')} €</div>
+                    <div class="w-full ${isWinner ? 'h-24 bg-gradient-to-t from-purple-800 via-purple-600 to-ocean-500 text-white' : 'h-16 bg-slate-200 text-slate-700'} rounded-t-2xl mt-2 flex items-center justify-center font-heading font-bold text-xl shadow-md">
+                        ${isWinner ? '👑 1º' : isBankrupt ? '💸 0€' : '🥈'}
+                    </div>
+                `;
+                podium.appendChild(col);
+            });
+
+            // Render Full Ranking List
+            const rankList = document.getElementById('finalLeaderboardList');
+            rankList.innerHTML = '';
+            ranked.forEach((p, index) => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between p-2.5 bg-white rounded-xl border border-slate-200 text-sm";
+                item.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-6 h-6 rounded-full ${index === 0 ? 'bg-gradient-to-r from-ocean-600 to-purple-600 text-white' : 'bg-slate-200 text-slate-700'} font-bold flex items-center justify-center text-xs font-heading">
+                            ${index + 1}
+                        </span>
+                        <span>${p.emoji} <strong>${escapeHtml(p.name)}</strong></span>
+                    </div>
+                    <div class="font-heading font-bold text-slate-800">
+                        ${p.currentMoney.toLocaleString('es-ES')} €
+                    </div>
+                `;
+                rankList.appendChild(item);
+            });
+
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 120,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#7c3aed', '#0284c7', '#a855f7', '#38bdf8']
+                });
+            }
+
+            showView('gameOver');
+        }
+
+        function openRulesModal() {
+            document.getElementById('rulesModal').classList.remove('hidden');
+        }
+
+        function closeRulesModal() {
+            document.getElementById('rulesModal').classList.add('hidden');
+        }
+
+        function showView(viewName) {
+            document.getElementById('viewSetup').classList.add('hidden');
+            document.getElementById('viewGame').classList.add('hidden');
+            document.getElementById('viewGameOver').classList.add('hidden');
+
+            if (viewName === 'setup') {
+                document.getElementById('viewSetup').classList.remove('hidden');
+                document.getElementById('headerResetBtn').classList.add('hidden');
+            } else if (viewName === 'game') {
+                document.getElementById('viewGame').classList.remove('hidden');
+                document.getElementById('headerResetBtn').classList.remove('hidden');
+            } else if (viewName === 'gameOver') {
+                document.getElementById('viewGameOver').classList.remove('hidden');
+                document.getElementById('headerResetBtn').classList.add('hidden');
+            }
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            setPlayerCount(3);
+            setupCalculatorInputs();
+        });
+    </script>
+</body>
+</html>
