@@ -1,1288 +1,1667 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La Cuenta - Asistente de Juego (Edición Azul y Morada)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        ocean: {
-                            50: '#f0f7ff',
-                            100: '#e0f0fe',
-                            200: '#bae0fd',
-                            300: '#7cc5fb',
-                            400: '#36a9f7',
-                            500: '#0c8de9',
-                            600: '#026fc7',
-                            700: '#0358a1',
-                            800: '#074b83',
-                            900: '#0c3f6e',
-                        }
-                    },
-                    fontFamily: {
-                        heading: ['Fredoka', 'sans-serif'],
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            background-color: #f3f0ff;
-            background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px);
-            background-size: 20px 20px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: #1e293b;
-        }
-        .font-heading {
-            font-family: 'Fredoka', cursive, sans-serif;
-        }
-        .card-shadow {
-            box-shadow: 0 10px 25px -3px rgba(124, 58, 237, 0.08), 0 4px 10px -2px rgba(12, 141, 233, 0.04);
-        }
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #e2e8f0;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #7c3aed;
-            border-radius: 4px;
-        }
-    </style>
-</head>
-<body class="min-h-screen flex flex-col justify-between antialiased">
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 
-    <!-- Header -->
-    <header class="bg-gradient-to-r from-ocean-800 via-purple-700 to-indigo-800 text-white shadow-lg sticky top-0 z-30 border-b border-purple-700/40">
-        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center space-x-3 cursor-pointer select-none" onclick="promptResetToHome()">
-                <div class="bg-white text-purple-700 p-2 rounded-xl shadow-md flex items-center justify-center font-bold text-xl w-10 h-10 font-heading">
-                    🧊
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold font-heading leading-tight tracking-wide flex items-center gap-1.5">
-                        LA CUENTA <span class="text-[10px] bg-purple-950/50 px-2 py-0.5 rounded-full text-purple-200 border border-purple-400/30 font-normal uppercase">Edición Azul & Morada</span>
-                    </h1>
-                    <p class="text-xs text-purple-100 font-medium opacity-90">Asistente oficial de partida</p>
-                </div>
-            </div>
+<title>La Cuenta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<style>
+/* Concepto: la mesa de La Cuenta a la orilla del mar — base azul cielo y verde menta en pastel, tarjetas blancas como cartas
+   y los colores del juego (vino, carne, pescado, verdura) suavizados. Roles: azul = estructura · verde = acción principal ·
+   turquesa (vino) = selección y "tú" · amarillo = detalles (ahorro inicial, primer puesto) · melocotón (carne) en las gambas ·
+   rosa = avisos · cartas especiales en blanco y carbón. Diseño solo en claro, a propósito. */
+:root {
+  --bg: #F2F8F8;
+  --dots: rgba(120, 175, 185, 0.16);
+  --gingham: rgba(190, 220, 232, 0.22);
+  --surface: #FFFFFF;
+  --surface-2: #EEF5F5;
+  --sand: #E1EDEE;
+  --ink: #263238;
+  --muted: #627178;
+  --line: #DCE8E9;
+  --outline: #36434A;
+  --on-pastel: #263238;
+  --blue: #CBE3F4; --blue-soft: #EAF4FB; --blue-ink: #36628A;
+  --apricot: #BFE3C8; --apricot-soft: #E7F5EB; --apricot-edge: #93CCA3;
+  --butter: #F7E8A6; --butter-soft: #FCF7E0; --butter-edge: #E3CE7C;
+  --aqua: #B4DFDA; --aqua-soft: #E8F6F4; --aqua-mid: #D1EDE9; --aqua-ink: #2C6A65;
+  --rose: #F3C6C1; --rose-soft: #FBEAE7; --rose-ink: #A2493F;
+  --scrim: rgba(38, 50, 56, 0.28);
+  --av0: #CBE3F4; --av1: #BFE3C8; --av2: #B4DFDA; --av3: #F7E8A6;
+  --av4: #F8D2B8; --av5: #D6E4F7; --av6: #D3EBC4; --av7: #F3C6C1;
+  --font-display: 'Fredoka', 'Arial Rounded MT Bold', 'Trebuchet MS', system-ui, sans-serif;
+  --font-body: 'Nunito', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --r-sm: 12px; --r-md: 18px; --r-lg: 26px;
+  --shadow: 0 1px 2px rgba(38, 50, 56, 0.04), 0 10px 28px rgba(38, 70, 80, 0.07);
+  --shadow-sm: 0 1px 2px rgba(38, 50, 56, 0.05), 0 4px 12px rgba(38, 70, 80, 0.06);
+  color-scheme: light;
+}
 
-            <div class="flex items-center space-x-2">
-                <button onclick="openRulesModal()" class="px-3 py-1.5 bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-semibold rounded-xl transition duration-200 flex items-center gap-1.5 backdrop-blur-md border border-white/20">
-                    <i class="fa-solid fa-book-open"></i>
-                    <span class="hidden sm:inline">Reglas & Cartas</span>
-                </button>
-                <button id="headerResetBtn" onclick="promptResetMatch()" class="hidden px-3 py-1.5 bg-purple-950/40 hover:bg-purple-950/70 text-white text-xs sm:text-sm font-semibold rounded-xl transition duration-200 flex items-center gap-1.5 border border-purple-400/30">
-                    <i class="fa-solid fa-rotate-right"></i>
-                    <span>Reiniciar</span>
-                </button>
-            </div>
+* { box-sizing: border-box; }
+body {
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%23C3D9DF' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round' opacity='.75'%3E%3Cg transform='rotate(-10 30 34)'%3E%3Cpath d='M22 18h16c0 9-3 14-8 14s-8-5-8-14z'/%3E%3Cpath d='M30 32v12M24 45h12'/%3E%3C/g%3E%3Cg transform='rotate(8 150 45)'%3E%3Cpath d='M128 72l46-46'/%3E%3Ccircle cx='146' cy='54' r='6.5'/%3E%3Ccircle cx='159' cy='41' r='6.5'/%3E%3C/g%3E%3Cg transform='rotate(-14 98 126)'%3E%3Cpath d='M98 104v46M92 104v9a6 6 0 0 0 12 0v-9M98 104v11'/%3E%3C/g%3E%3Cg transform='rotate(6 176 168)'%3E%3Cpath d='M152 182l42-26 4 26z'/%3E%3Ccircle cx='178' cy='175' r='2.2'/%3E%3C/g%3E%3Cg transform='rotate(-6 42 162)'%3E%3Cpath d='M30 148h22l-2.5 34h-17z'/%3E%3Cpath d='M28 148c0-5 6-6 9-4 2-3 8-3 10 0 3-1 8 0 7 4'/%3E%3C/g%3E%3Cpath d='M112 30v12M106 36h12'/%3E%3Cpath d='M212 108v10M207 113h10'/%3E%3Cg transform='rotate(20 196 92)'%3E%3Crect x='182' y='84' width='28' height='15' rx='7.5'/%3E%3C/g%3E%3Cg transform='rotate(-8 110 206)'%3E%3Cpath d='M90 200h40c0 10-8 16-20 16s-20-6-20-16z'/%3E%3Cpath d='M96 196l6-8M108 194l3-9M120 196l-2-8'/%3E%3C/g%3E%3Ccircle cx='62' cy='96' r='2.4'/%3E%3Ccircle cx='214' cy='222' r='2.4'/%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(90deg, var(--gingham) 50%, transparent 50%),
+    linear-gradient(var(--gingham) 50%, transparent 50%);
+  background-size: 240px 240px, 36px 36px, 36px 36px;
+  background-attachment: fixed;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+h1, h2, h3, h4 { margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.display { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.005em; }
+.label { font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.tiny { font-size: 12px; }
+
+.ic { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ic-lg { width: 26px; height: 26px; }
+.ic-sm { width: 16px; height: 16px; }
+
+/* Layout */
+.app { min-height: 100%; display: flex; flex-direction: column; }
+.wrap { width: 100%; max-width: 880px; margin: 0 auto; padding-inline: 16px; }
+main.wrap { padding-block: 30px 36px; flex: 1; display: flex; flex-direction: column; gap: 18px; }
+.stack { display: flex; flex-direction: column; gap: 14px; }
+.row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.between { justify-content: space-between; }
+.grow { flex: 1; min-width: 0; }
+
+/* Cabecera */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: color-mix(in srgb, var(--surface) 88%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; }
+.brand { display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 0; text-align: left; }
+.brand-mark { width: 42px; height: 42px; flex: none; }
+.brand h1 { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-height: 1; color: var(--ink); letter-spacing: -0.01em; }
+.brand p { font-size: 12px; font-weight: 700; color: var(--muted); }
+
+/* Piezas */
+.piece { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow); }
+.pad { padding: 18px; }
+@media (min-width: 640px) { .pad { padding: 24px; } }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 9px 16px; font-weight: 800; font-size: 14px; background: var(--surface); color: var(--ink); box-shadow: 0 2px 0 var(--line); transition: transform .1s ease, box-shadow .1s ease, background-color .15s ease; white-space: nowrap; }
+.btn:hover { background: var(--surface-2); }
+.btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 0 0 var(--line); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn-red { background: var(--apricot); border-color: var(--apricot-edge); color: var(--on-pastel); box-shadow: 0 3px 0 var(--apricot-edge); }
+.btn-red:hover { background: var(--apricot); filter: brightness(1.03); }
+.btn-red:active:not(:disabled) { box-shadow: 0 0 0 var(--apricot-edge); }
+.btn-olive { background: var(--aqua-mid); border-color: var(--aqua); color: var(--aqua-ink); box-shadow: 0 3px 0 var(--aqua); }
+.btn-olive:hover { background: var(--aqua-mid); filter: brightness(1.02); }
+.btn-olive:active:not(:disabled) { box-shadow: 0 0 0 var(--aqua); }
+.btn-mostaza { background: var(--butter); border-color: var(--butter-edge); color: var(--on-pastel); box-shadow: 0 3px 0 var(--butter-edge); }
+.btn-big { width: 100%; padding: 15px 20px; font-size: 18px; font-family: var(--font-display); font-weight: 600; letter-spacing: .005em; }
+.btn-sm { padding: 6px 12px; font-size: 13px; }
+.btn-icon { padding: 7px; border-radius: 12px; }
+.link { background: none; border: 0; padding: 0; font-weight: 800; color: var(--aqua-ink); text-decoration: underline; text-decoration-color: var(--aqua); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+
+:focus-visible { outline: 3px solid var(--aqua); outline-offset: 2px; }
+
+.input, .select { width: 100%; padding: 11px 14px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); font-weight: 700; outline: none; transition: box-shadow .15s ease, background-color .15s ease; }
+.input:focus, .select:focus { background: var(--surface); border-color: var(--aqua); box-shadow: 0 0 0 4px var(--aqua-soft); }
+.input-money { font-family: var(--font-display); font-size: 30px; font-weight: 600; padding-right: 44px; }
+.money-wrap { position: relative; }
+.money-wrap span { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-family: var(--font-display); font-weight: 600; font-size: 24px; color: var(--muted); }
+
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; }
+.seg button { border: 0; background: transparent; border-radius: 999px; padding: 8px 6px; font-weight: 800; font-size: 13px; color: var(--muted); transition: background-color .15s ease, color .15s ease; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--aqua-ink); box-shadow: var(--shadow-sm), inset 0 0 0 1.5px var(--aqua); }
+
+.chip { color: var(--ink); display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 4px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: 12px; font-weight: 800; }
+
+/* Fichas de jugador: inicial sobre una ficha pastel */
+.av { width: 40px; height: 40px; flex: none; display: inline-grid; place-items: center; border-radius: 34%; font-family: var(--font-display); font-weight: 600; font-size: 18px; line-height: 1; color: var(--on-pastel); box-shadow: inset 0 -3px 0 rgba(44, 49, 58, 0.07), 0 0 0 1px rgba(44, 49, 58, 0.06); }
+.av-sm { width: 28px; height: 28px; font-size: 13px; border-radius: 50%; }
+.av-lg { width: 54px; height: 54px; font-size: 24px; }
+.av-xl { width: 74px; height: 74px; font-size: 32px; }
+.av.low { box-shadow: inset 0 -3px 0 rgba(44, 49, 58, 0.07), 0 0 0 2.5px var(--rose-ink); }
+.av.star { box-shadow: inset 0 -3px 0 rgba(44, 49, 58, 0.07), 0 0 0 3px var(--butter-edge); }
+
+/* Preparación */
+.hero-setup { text-align: center; display: grid; gap: 6px; justify-items: center; }
+.hero-setup h2 { font-family: var(--font-display); font-weight: 600; font-size: clamp(28px, 6vw, 40px); line-height: 1.08; letter-spacing: -0.01em; }
+.count-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-width: 420px; margin: 0 auto; width: 100%; }
+.count-grid button { aspect-ratio: 1; max-width: 100%; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); font-family: var(--font-display); font-weight: 600; font-size: 21px; box-shadow: 0 2px 0 var(--line); transition: background-color .15s ease; }
+.count-grid button:hover { background: var(--blue-soft); }
+.count-grid button[aria-pressed="true"] { background: var(--aqua-mid); border-color: var(--aqua); color: var(--aqua-ink); box-shadow: 0 3px 0 var(--aqua); }
+.budget { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; background: var(--butter-soft); border: 1.5px dashed var(--butter-edge); border-radius: var(--r-md); }
+.budget strong { font-family: var(--font-display); font-weight: 600; font-size: 26px; }
+.narrow { max-width: 460px; width: 100%; margin: 0 auto; }
+.name-row { display: flex; align-items: center; gap: 8px; }
+.me-toggle { flex: none; border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; font-size: 12px; font-weight: 800; background: var(--surface); color: var(--muted); }
+.me-toggle[aria-pressed="true"] { background: var(--aqua-mid); border-color: var(--aqua); color: var(--aqua-ink); }
+
+/* Tu resumen */
+.mebar { background: linear-gradient(135deg, var(--aqua-soft), var(--blue-soft)); border-color: var(--aqua-mid); }
+.mebar .money { font-family: var(--font-display); font-weight: 600; font-size: 40px; line-height: 1; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 10px 6px; text-align: center; }
+.stat b { display: block; font-family: var(--font-display); font-weight: 600; font-size: 22px; line-height: 1.1; }
+.stat span { font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.picker button { display: inline-flex; align-items: center; gap: 8px; padding: 5px 14px 5px 5px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-weight: 800; box-shadow: var(--shadow-sm); }
+.picker button:hover { border-color: var(--aqua); }
+.picker .online { font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--blue-ink); }
+
+/* Lobby */
+.lobby-live { background: var(--blue-soft); border-color: var(--blue); }
+.code { font-family: var(--font-display); font-weight: 600; font-size: 34px; letter-spacing: .22em; line-height: 1; color: var(--blue-ink); }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--blue-ink); display: inline-block; box-shadow: 0 0 0 4px var(--blue); }
+.dot.err { background: var(--rose-ink); box-shadow: 0 0 0 4px var(--rose-soft); }
+
+/* Ronda */
+.round-badge { width: 54px; height: 54px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--blue); color: var(--on-pastel); font-family: var(--font-display); font-weight: 600; font-size: 24px; box-shadow: inset 0 -3px 0 rgba(31, 41, 55, 0.08); }
+.round-title { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-height: 1.1; }
+
+/* Jugadores */
+.players { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+.player { padding: 16px; display: flex; flex-direction: column; gap: 12px; position: relative; }
+.player.is-me { background: var(--aqua-soft); border-color: var(--aqua); }
+.player .place { position: absolute; top: -11px; left: 14px; display: inline-flex; align-items: center; gap: 3px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 1px 9px; font-size: 12px; font-weight: 800; box-shadow: var(--shadow-sm); }
+.player.lead .place { background: var(--butter); border-color: var(--butter-edge); color: var(--on-pastel); }
+.player .name { font-weight: 800; font-size: 16px; line-height: 1.2; overflow-wrap: anywhere; }
+.player .cash { font-family: var(--font-display); font-weight: 600; font-size: 26px; line-height: 1; white-space: nowrap; }
+.cash.low { color: var(--rose-ink); }
+.you-tag { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: var(--aqua); color: var(--on-pastel); font-size: 10px; font-weight: 800; letter-spacing: .06em; vertical-align: 2px; }
+.bar { height: 10px; border-radius: 999px; background: var(--surface-2); overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
+.bar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--blue), var(--aqua)); transition: width .4s ease; }
+.bar i.low { background: linear-gradient(90deg, var(--rose), var(--apricot)); }
+.tokens { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; background: var(--surface-2); border-radius: var(--r-sm); }
+.chips { display: flex; align-items: center; }
+.chips .shrimp { width: 22px; height: 22px; flex: none; margin-left: -7px; filter: drop-shadow(0 1px 0 rgba(44, 49, 58, 0.12)); }
+.chips .shrimp:first-child { margin-left: 0; }
+.chips .shrimp:nth-child(even) { transform: rotate(-10deg) translateY(1px); }
+.hand { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; font-size: 13px; color: var(--ink); }
+.foot { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--muted); font-weight: 700; }
+
+/* Accesos */
+.shortcuts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.shortcut { display: flex; align-items: center; gap: 14px; padding: 14px; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--shadow-sm); transition: border-color .15s ease, transform .15s ease; }
+.shortcut:hover { border-color: var(--aqua); transform: translateY(-1px); }
+.cardnum { width: 38px; height: 50px; flex: none; display: grid; place-items: center; border: 1.5px solid var(--outline); border-radius: 8px; background: var(--surface); color: var(--ink); font-family: var(--font-display); font-weight: 600; font-size: 20px; transform: rotate(-6deg); box-shadow: 3px 3px 0 var(--aqua); }
+.shortcut b { display: block; font-weight: 800; }
+
+/* Historial */
+.history { display: flex; flex-direction: column; gap: 8px; max-height: 340px; overflow-y: auto; padding: 2px; }
+.hitem { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); }
+.hitem .r { width: 34px; height: 34px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--blue-soft); color: var(--blue-ink); font-weight: 800; font-size: 12px; }
+.hitem .txt { flex: 1; min-width: 0; font-size: 13px; }
+.hitem .txt small { display: block; color: var(--muted); font-weight: 700; font-size: 11px; }
+.hitem .amt { font-family: var(--font-display); font-weight: 600; font-size: 18px; white-space: nowrap; }
+.hitem .edited { font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--aqua-ink); }
+.empty { text-align: center; padding: 22px 8px; color: var(--muted); font-weight: 700; display: grid; justify-items: center; gap: 8px; }
+.banner { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--rose); border-radius: var(--r-md); background: var(--rose-soft); color: var(--ink); font-weight: 700; font-size: 13px; }
+.banner .ic { color: var(--rose-ink); }
+
+/* Fin */
+.podium { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-items: end; max-width: 520px; margin: 0 auto; width: 100%; }
+.pod { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; text-align: center; }
+.pod .name { font-weight: 800; font-size: 14px; overflow-wrap: anywhere; }
+.pod .step { width: 100%; border-radius: 16px 16px 0 0; display: grid; place-items: center; font-family: var(--font-display); font-weight: 600; font-size: 22px; background: var(--sand); color: var(--on-pastel); }
+.pod.first .step { background: var(--butter); }
+.board { display: flex; flex-direction: column; gap: 6px; }
+.board div.li { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-sm); }
+
+/* Modales */
+.modal { position: fixed; inset: 0; z-index: 50; background: var(--scrim); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.sheet { width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.sheet-head h3 { font-family: var(--font-display); font-weight: 600; font-size: 23px; line-height: 1.15; display: flex; align-items: center; gap: 8px; }
+.sheet-head h3 .ic { color: var(--aqua-ink); }
+.err-box { padding: 10px 12px; border-radius: var(--r-sm); background: var(--rose-soft); color: var(--rose-ink); font-weight: 800; font-size: 13px; }
+.payers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.payer { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); text-align: left; min-width: 0; transition: background-color .15s ease, border-color .15s ease; }
+.payer:hover { border-color: var(--aqua); }
+.payer span.n { flex: 1; min-width: 0; font-weight: 800; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.payer span.m { font-size: 12px; color: var(--muted); font-weight: 700; }
+.payer[aria-pressed="true"] { background: var(--aqua-mid); border-color: var(--aqua); color: var(--aqua-ink); }
+.payer[aria-pressed="true"] span.m { color: var(--aqua-ink); }
+.boxed { padding: 14px; background: var(--blue-soft); border-radius: var(--r-md); display: flex; flex-direction: column; gap: 10px; }
+.check { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-sm); cursor: pointer; font-weight: 800; font-size: 13px; }
+.check input { width: 18px; height: 18px; accent-color: var(--aqua-ink); }
+.preview { font-weight: 800; color: var(--aqua-ink); font-size: 13px; }
+
+/* Calculadora */
+.calc-block { padding: 14px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); display: flex; flex-direction: column; gap: 10px; }
+.calc-block b .ic { color: var(--aqua-ink); }
+.tape { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 12px; min-height: 48px; max-height: 110px; overflow-y: auto; padding: 8px 10px; background: var(--surface); border: 1px dashed var(--line); border-radius: var(--r-sm); overflow-wrap: anywhere; }
+.keys { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.keys button { padding: 8px 0; border: 1px solid #8CC79C; border-radius: 10px; font-weight: 900; font-size: 13px; background: #C3E7CC; color: #1F5C34; transition: transform .08s ease, border-color .15s ease; }
+.keys button:hover { border-color: #3F8A55; }
+.keys.minus button { background: #F6C9C3; border-color: #E29C93; color: #8E2F25; }
+.keys.minus button:hover { border-color: #B54A3E; }
+.keys button:active { transform: translateY(1px); }
+.stepper { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--surface); }
+.stepper button { width: 38px; height: 38px; border: 0; background: var(--surface-2); display: grid; place-items: center; }
+.stepper button:hover { background: var(--aqua-soft); }
+.stepper input { width: 44px; text-align: center; border: 0; background: transparent; font-weight: 800; font-size: 16px; outline: none; }
+.sub { font-family: var(--font-display); font-weight: 600; font-size: 20px; }
+.total { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 12px; border-top: 1px solid var(--line); }
+.calc-foot { position: sticky; bottom: -22px; margin: 0 -22px -22px; padding: 4px 22px 22px; background: var(--surface); display: flex; flex-direction: column; gap: 12px; box-shadow: 0 -10px 16px -12px rgba(38,50,56,.18); }
+.total b { font-family: var(--font-display); font-weight: 600; font-size: 32px; color: var(--aqua-ink); }
+.inline-num { width: 100px; text-align: right; border: 0; background: transparent; font-family: var(--font-display); font-weight: 600; font-size: 22px; outline: none; }
+
+/* Reglas */
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+.rule { display: flex; gap: 12px; padding: 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); }
+.rule .cardnum { width: 32px; height: 42px; font-size: 17px; }
+.rule b { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 14px; }
+.rule b .ic { color: var(--aqua-ink); }
+.rule p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+footer { padding-block: 18px; text-align: center; font-size: 12px; color: var(--muted); font-weight: 700; }
+
+/* Detalles del bar */
+.awning { height: 16px; background: repeating-linear-gradient(90deg, var(--blue) 0 28px, var(--surface) 28px 56px);
+  -webkit-mask: radial-gradient(14px 10px at 14px 0, #000 98%, transparent) 0 0 / 28px 16px repeat-x, linear-gradient(#000 0 6px, transparent 6px);
+  mask: radial-gradient(14px 10px at 14px 0, #000 98%, transparent) 0 0 / 28px 16px repeat-x, linear-gradient(#000 0 6px, transparent 6px);
+  position: absolute; left: 0; right: 0; top: 100%; pointer-events: none; }
+.tapas-strip { display: flex; justify-content: center; align-items: flex-end; gap: 10px; }
+.tapas-strip svg { width: 34px; height: 34px; flex: none; }
+.tapas-strip svg:nth-child(odd) { transform: rotate(-6deg); }
+.tapas-strip svg:nth-child(even) { transform: rotate(5deg) translateY(-2px); }
+.round-badge { border: 2px dashed rgba(255,255,255,.85); outline: 4px solid var(--blue); outline-offset: 0; }
+.count-grid button { background-image: radial-gradient(circle, transparent 58%, var(--surface-2) 59%, var(--surface-2) 62%, transparent 63%); }
+.count-grid button[aria-pressed="true"] { background-image: radial-gradient(circle, transparent 58%, rgba(255,255,255,.7) 59%, rgba(255,255,255,.7) 62%, transparent 63%); }
+.ticket { position: relative; border-radius: var(--r-lg) var(--r-lg) 0 0; border-bottom: 0; padding-bottom: 32px; -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 20px 100%; mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 20px 100%; }
+.ticket-head { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); text-align: center; padding-bottom: 10px; border-bottom: 1.5px dashed var(--line); }
+.ticket-total { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding-top: 12px; border-top: 1.5px dashed var(--line); font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 13px; font-weight: 700; }
+.ticket-total b { font-family: var(--font-display); font-size: 22px; font-weight: 600; }
+/* Botones de pago juntos */
+.pay-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn-num { display: inline-grid; place-items: center; width: 20px; height: 26px; border: 1.5px solid var(--outline); border-radius: 5px; background: var(--surface); font-family: var(--font-display); font-weight: 600; font-size: 13px; transform: rotate(-6deg); box-shadow: 2px 2px 0 var(--butter); }
+/* Historial como factura */
+.invoice { --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-family: var(--mono); max-width: 560px; width: 100%; margin-inline: auto; display: flex; flex-direction: column; gap: 0; background-image: repeating-linear-gradient(transparent 0 27px, rgba(120,175,185,.06) 27px 28px); }
+.inv-brand { text-align: center; display: grid; justify-items: center; gap: 2px; padding-bottom: 12px; }
+.inv-brand h3 { font-family: var(--font-display); font-weight: 600; font-size: 24px; letter-spacing: .02em; text-transform: uppercase; }
+.inv-brand p { font-size: 11px; color: var(--muted); letter-spacing: .04em; }
+.inv-title { text-align: center; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; padding: 8px 0; border-block: 1.5px dashed var(--outline); }
+.inv-title::before, .inv-title::after { content: "✦"; color: var(--butter-edge); margin-inline: 8px; }
+.inv-meta { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; padding: 10px 0; font-size: 12px; border-bottom: 1.5px dashed var(--line); }
+.inv-meta span { color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.inv-meta b { text-align: right; font-weight: 700; }
+.inv-cols { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; padding: 8px 0 6px; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); border-bottom: 1.5px solid var(--outline); }
+.inv-cols span:last-child { text-align: right; padding-right: 2px; }
+.invoice .history { gap: 0; padding: 0; max-height: 360px; }
+.invoice .hitem { background: none; border: 0; border-radius: 0; border-bottom: 1px dotted var(--line); padding: 9px 0; display: grid; grid-template-columns: 34px 1fr auto auto; gap: 10px; align-items: baseline; }
+.invoice .hitem .r { width: auto; height: auto; background: none; border-radius: 0; color: var(--muted); font-size: 12px; font-weight: 700; display: block; }
+.invoice .hitem .txt { font-size: 12.5px; }
+.invoice .hitem .txt strong { font-weight: 800; }
+.invoice .hitem .txt small { font-size: 10.5px; font-weight: 600; }
+.invoice .hitem .amt { font-family: var(--mono); font-size: 14px; font-weight: 700; }
+.invoice .hitem .btn-icon { padding: 4px; border-radius: 8px; align-self: center; box-shadow: none; }
+.invoice .empty { font-family: var(--font-body); }
+.inv-sub { display: flex; justify-content: space-between; padding-top: 6px; font-size: 12px; color: var(--muted); }
+.inv-sub:first-of-type { padding-top: 10px; }
+.inv-sub b { font-weight: 700; color: var(--ink); }
+.invoice .ticket-total { margin-top: 10px; border-top: 1.5px solid var(--outline); border-bottom: 3px double var(--outline); padding-bottom: 8px; text-transform: uppercase; letter-spacing: .06em; }
+.inv-foot { display: grid; justify-items: center; gap: 8px; padding-top: 16px; text-align: center; font-size: 12px; }
+.inv-foot p { font-weight: 700; letter-spacing: .08em; }
+.inv-foot .inv-help { font-family: var(--font-body); font-size: 11.5px; font-weight: 600; letter-spacing: 0; color: var(--muted); max-width: 40ch; }
+.barcode { width: 180px; height: 34px; background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 5px, transparent 5px 8px, var(--ink) 8px 11px, transparent 11px 12px, var(--ink) 12px 13px, transparent 13px 16px); opacity: .8; }
+.plate { width: 86px; height: 56px; }
+
+/* Más detalles: amarillo y tapas */
+.hl { background: linear-gradient(transparent 60%, var(--butter) 60% 92%, transparent 92%); padding-inline: 4px; border-radius: 3px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.topbar { border-bottom: 3px solid var(--butter); }
+.cardnum { box-shadow: 3px 3px 0 var(--butter); }
+.player .deco { position: absolute; right: 12px; top: -15px; width: 32px; height: 32px; transform: rotate(10deg); filter: drop-shadow(0 2px 2px rgba(38, 50, 56, .10)); }
+.player .place { border-color: var(--butter-edge); }
+.ticket-head::before, .ticket-head::after { content: "✦"; color: var(--butter-edge); margin-inline: 8px; }
+.stat b { display: inline-block; background: linear-gradient(transparent 62%, var(--butter-soft) 62%); padding-inline: 4px; }
+.sheet-head { border-bottom: 2px dotted var(--butter-edge); }
+.shortcut .tap { width: 30px; height: 30px; margin-left: auto; flex: none; }
+.section-h { display: inline-flex; align-items: center; gap: 6px; }
+.section-h svg { width: 22px; height: 22px; }
+
+@keyframes rise { from { transform: translateY(4px); opacity: .7; } to { transform: none; opacity: 1; } }
+.anim { animation: rise .28s ease-out; }
+@media (prefers-reduced-motion: reduce) { .anim { animation: none; } .btn, .bar i, .shortcut { transition: none; } }
+@media (max-width: 420px) {
+  .brand p { display: none; }
+  .mebar .money { font-size: 34px; }
+  .payers { grid-template-columns: 1fr; }
+}
+</style>
+
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21z"/><path d="M9 8h6M9 12h6M9 16h3"/></symbol>
+  <symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="3"/><rect x="8" y="6" width="8" height="4" rx="1"/><path d="M9 14h.01M12 14h.01M15 14h.01M9 17.5h.01M12 17.5h.01M15 17.5h.01" stroke-width="3"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H13v16h5.5c.8 0 1.5-.7 1.5-1.5z"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M4 4v4h4"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V5.5c0-.8-.7-1.5-1.5-1.5h-9C4.7 4 4 4.7 4 5.5v9c0 .8.7 1.5 1.5 1.5H8"/></symbol>
+  <symbol id="i-exit" viewBox="0 0 24 24"><path d="M14 4H6v16h8"/><path d="M10 12h10M17 9l3 3-3 3"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2.5"/><path d="M12 9.5l2.5 2.5-2.5 2.5-2.5-2.5z"/></symbol>
+  <symbol id="i-shrimp" viewBox="0 0 24 24"><path d="M15.5 4.5C21 6 21.5 15.5 13.5 18.2C9.5 19.5 6.6 17.6 5.4 14.6" fill="none" stroke="#D9785E" stroke-width="6.4" stroke-linecap="round"/><path d="M15.5 4.5C21 6 21.5 15.5 13.5 18.2C9.5 19.5 6.6 17.6 5.4 14.6" fill="none" stroke="#F5A88E" stroke-width="4.6" stroke-linecap="round"/><path d="M17.6 8.6l-3 1.4M18 12.6l-3.3.2M16.3 16.2l-2.7-1.5M12.6 18.4l-1-2.7" fill="none" stroke="#FFF4EE" stroke-width="1.1" stroke-linecap="round"/><path d="M6.6 13.6L1.8 11l.9 3.6-1 3.4 4.9-2.2z" fill="#F5A88E" stroke="#D9785E" stroke-width="1" stroke-linejoin="round"/><path d="M15 4.2C12.5 1.6 9 1.8 6.6 1.2M15.6 4.4C14.6 2 12.4.9 10.6.5" fill="none" stroke="#D9785E" stroke-width="1" stroke-linecap="round"/><circle cx="16.4" cy="5.6" r="1" fill="#2C313A"/></symbol>
+  <symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/></symbol>
+  <symbol id="i-glass" viewBox="0 0 24 24"><path d="M7 3h10c0 5-2 8.5-5 8.5S7 8 7 3z"/><path d="M7.5 6.5h9M12 11.5V20M8 20.5h8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16.5 14.2c2.6.3 4.5 2.6 4.5 5.8"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-half" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v16"/></symbol>
+  <symbol id="i-pie" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 12V4M12 12l7 4M12 12l-7 4"/></symbol>
+  <symbol id="i-crown" viewBox="0 0 24 24"><path d="M4 18h16"/><path d="M4.5 18L3 8l5 4 4-6 4 6 5-4-1.5 10"/></symbol>
+  <symbol id="i-live" viewBox="0 0 24 24"><path d="M4.5 10a10.5 10.5 0 0 1 15 0M8 13.5a5.5 5.5 0 0 1 8 0"/><path d="M12 17.5h.01" stroke-width="3.4"/></symbol>
+  <symbol id="i-dice" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M9 9h.01M15 9h.01M12 12h.01M9 15h.01M15 15h.01" stroke-width="3"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-3 2-4 2-6.5 1.2 1 1.8 2.2 1.8 3.5C12 8 12 5 12 3z"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M5 8h13l-3-3M19 16H6l3 3"/></symbol>
+  <symbol id="i-wc" viewBox="0 0 24 24"><path d="M7 3h5v7H7zM5 10h13c0 4-3 6.5-6.5 6.5L13 21H8l.5-4.7C6.5 15.4 5 13 5 10z"/></symbol>
+  <symbol id="i-coffee" viewBox="0 0 24 24"><path d="M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"/><path d="M16 11h1.5a2.5 2.5 0 0 1 0 5H16M9 3.5v2.5M12.5 3.5v2.5"/></symbol>
+  <symbol id="i-tip" viewBox="0 0 24 24"><path d="M5 16c3-1 5 1 7 1s3-1 5-1 2 1 2 1"/><circle cx="9" cy="9" r="3"/><circle cx="15.5" cy="7" r="2.2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></symbol>
+  <symbol id="t-olive" viewBox="0 0 32 32"><path d="M5 27L27 5" stroke="#B9946A" stroke-width="2" stroke-linecap="round"/><circle cx="26.5" cy="5.5" r="2.2" fill="#F4A9A0"/><ellipse cx="12" cy="20" rx="5.2" ry="4.2" fill="#B5DCA8" stroke="#6E9F66" stroke-width="1.4" transform="rotate(-45 12 20)"/><ellipse cx="19" cy="13" rx="5.2" ry="4.2" fill="#C6E6B6" stroke="#6E9F66" stroke-width="1.4" transform="rotate(-45 19 13)"/><circle cx="13.5" cy="18.5" r="1.4" fill="#F4A9A0"/><circle cx="20.5" cy="11.5" r="1.4" fill="#F4A9A0"/></symbol>
+  <symbol id="t-cheese" viewBox="0 0 32 32"><path d="M4 23L26 9l2 14z" fill="#F7E6A0" stroke="#CDB15C" stroke-width="1.4" stroke-linejoin="round"/><path d="M4 23h24v4H4z" fill="#EFD584" stroke="#CDB15C" stroke-width="1.4" stroke-linejoin="round"/><circle cx="18" cy="18" r="1.8" fill="#E6C96E"/><circle cx="23.5" cy="15.5" r="1.2" fill="#E6C96E"/><circle cx="12" cy="21" r="1.1" fill="#E6C96E"/></symbol>
+  <symbol id="t-wine" viewBox="0 0 32 32"><path d="M10 4h12c0 7-2.5 11-6 11s-6-4-6-11z" fill="#FFFFFF" stroke="#4E6A70" stroke-width="1.4" stroke-linejoin="round"/><path d="M10.6 9h10.8c-.6 3.6-2.6 6-5.4 6s-4.8-2.4-5.4-6z" fill="#9FD5CF"/><path d="M16 15v10M11.5 27h9" stroke="#4E6A70" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="t-bread" viewBox="0 0 32 32"><path d="M5 13c0-4 5-6 11-6s11 2 11 6v11c0 1.7-1.3 3-3 3H8c-1.7 0-3-1.3-3-3z" fill="#F3D9B1" stroke="#C99E66" stroke-width="1.4"/><path d="M8 14c3-1.6 5 .8 8-.4s5-1.4 8 .2c0 2.8-1.6 4-4 3.6-2.4-.4-3.4 1.6-6 1.2-3.2-.4-6-.8-6-4.6z" fill="#F6ADA2"/><circle cx="12" cy="22.5" r=".9" fill="#D9B07A"/><circle cx="19" cy="23" r=".9" fill="#D9B07A"/></symbol>
+  <symbol id="t-croqueta" viewBox="0 0 32 32"><rect x="5" y="11" width="22" height="11" rx="5.5" fill="#EBC593" stroke="#C3955C" stroke-width="1.4"/><rect x="9" y="17" width="20" height="9" rx="4.5" fill="#F1D2A6" stroke="#C3955C" stroke-width="1.4"/><circle cx="10" cy="15" r=".8" fill="#C3955C"/><circle cx="15" cy="13.5" r=".8" fill="#C3955C"/><circle cx="14" cy="21" r=".8" fill="#C3955C"/><circle cx="21" cy="22" r=".8" fill="#C3955C"/><circle cx="25" cy="20" r=".8" fill="#C3955C"/></symbol>
+  <symbol id="t-plate" viewBox="0 0 86 56"><ellipse cx="43" cy="34" rx="34" ry="14" fill="#FFFFFF" stroke="#B9CBD0" stroke-width="1.6"/><ellipse cx="43" cy="32" rx="21" ry="8" fill="#EEF5F5" stroke="#D3E1E3" stroke-width="1.2"/><path d="M80 14v32M77 14v8a3 3 0 0 0 6 0v-8" fill="none" stroke="#B9CBD0" stroke-width="1.6" stroke-linecap="round"/><path d="M6 46V14c3 2 4 8 4 13H6" fill="none" stroke="#B9CBD0" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="38" cy="31" r="3" fill="#C6E6B6"/><circle cx="46" cy="33" r="2.4" fill="#F6ADA2"/></symbol>
+  <symbol id="t-tortilla" viewBox="0 0 32 32"><path d="M16 27L4 11a16 14 0 0 1 24 0z" fill="#F9E08F" stroke="#CFA557" stroke-width="1.4" stroke-linejoin="round"/><path d="M5.6 12.4a15 13 0 0 1 20.8 0" fill="none" stroke="#E2B865" stroke-width="2.4" stroke-linecap="round"/><circle cx="13" cy="17" r="1.5" fill="#EFC86C"/><circle cx="18.5" cy="15.5" r="1.2" fill="#EFC86C"/><circle cx="16" cy="21" r="1.1" fill="#EFC86C"/></symbol>
+  <symbol id="t-beer" viewBox="0 0 32 32"><path d="M9 10h14l-1.6 16.4a2 2 0 0 1-2 1.6h-6.8a2 2 0 0 1-2-1.6z" fill="#F8E192" stroke="#C7A550" stroke-width="1.4" stroke-linejoin="round"/><path d="M8 10.5c-.4-3 3-4.6 5.4-3.2 1.2-2.4 5.4-2.4 6.6 0 2.4-1.2 5.4.4 4.6 3.2z" fill="#FFFFFF" stroke="#B9C3C6" stroke-width="1.3" stroke-linejoin="round"/><circle cx="14" cy="18" r=".9" fill="#FFF6D2"/><circle cx="18" cy="22" r=".9" fill="#FFF6D2"/><circle cx="16.5" cy="15" r=".7" fill="#FFF6D2"/></symbol>
+  <symbol id="t-bravas" viewBox="0 0 32 32"><rect x="8" y="9" width="6" height="6" rx="1.2" fill="#F7DA95" stroke="#CFA557" stroke-width="1.2" transform="rotate(-12 11 12)"/><rect x="15" y="8" width="6" height="6" rx="1.2" fill="#F7DA95" stroke="#CFA557" stroke-width="1.2" transform="rotate(10 18 11)"/><rect x="20" y="11" width="5.5" height="5.5" rx="1.2" fill="#F7DA95" stroke="#CFA557" stroke-width="1.2"/><path d="M10 11.5c2 1 4 .2 6 1.2s4 0 6 .6" fill="none" stroke="#F49C82" stroke-width="2.2" stroke-linecap="round"/><path d="M4 16h24c0 6.6-5.4 10-12 10S4 22.6 4 16z" fill="#CBE3F4" stroke="#7FA3BF" stroke-width="1.4" stroke-linejoin="round"/><path d="M8 19.5h16" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" opacity=".8"/></symbol>
+  <symbol id="t-pimiento" viewBox="0 0 32 32"><path d="M11 9c4.5-2.2 9.4 3 11.4 9.4 1.8 6-1.2 9.6-5 8.6-4.2-1.1-6.4-6.4-7.6-10.4-.9-3.2-.8-6.4 1.2-7.6z" fill="#BEDFA8" stroke="#6E9F66" stroke-width="1.4"/><path d="M11.6 9c-1.2-3 .6-5.2 3.2-5.6" fill="none" stroke="#6E9F66" stroke-width="1.8" stroke-linecap="round"/><path d="M13.8 12.6c1.4 1.6 2.4 4 3 6.6" fill="none" stroke="#E2F2D6" stroke-width="1.3" stroke-linecap="round"/><circle cx="20" cy="24.5" r=".8" fill="#FFFFFF"/><circle cx="22" cy="22" r=".6" fill="#FFFFFF"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="topbar">
+    <div class="wrap">
+      <button class="brand" type="button" onclick="promptResetToHome()" aria-label="La Cuenta, volver al inicio">
+        <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
+          <rect x="8" y="9" width="22" height="31" rx="5" fill="var(--blue)" stroke="var(--outline)" stroke-width="1.8" transform="rotate(-12 19 24.5)"/>
+          <rect x="18" y="7" width="22" height="31" rx="5" fill="var(--apricot-soft)" stroke="var(--outline)" stroke-width="1.8" transform="rotate(8 29 22.5)"/>
+          <g transform="rotate(8 29 22.5)" fill="none" stroke="var(--outline)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M24 15h10c0 5-2 8-5 8s-5-3-5-8z" fill="var(--rose)"/><path d="M29 23v6M25.5 29.5h7"/>
+          </g>
+        </svg>
+        <div><h1>La Cuenta</h1><p>Contador no oficial de la mesa</p></div>
+      </button>
+      <div class="row" style="flex-wrap:nowrap; gap:8px">
+        <button type="button" class="btn btn-sm" onclick="openRulesModal()"><svg class="ic ic-sm"><use href="#i-book"/></svg>Reglas</button>
+        <button type="button" id="headerResetBtn" class="btn btn-sm" hidden onclick="promptResetMatch()"><svg class="ic ic-sm"><use href="#i-reset"/></svg>Reiniciar</button>
+      </div>
+    </div>
+    <div class="awning" aria-hidden="true"></div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- SETUP -->
+    <section id="viewSetup" class="piece pad stack" style="gap:22px">
+      <div class="seg narrow" role="group" aria-label="Modo">
+        <button type="button" id="tabCreate" onclick="setSetupTab('create')">Crear partida</button>
+        <button type="button" id="tabJoin" onclick="setSetupTab('join')">Unirme a un lobby</button>
+      </div>
+
+      <div id="setupJoin" class="narrow stack" hidden>
+        <div class="hero-setup">
+          <svg class="ic ic-lg" style="width:40px;height:40px;color:var(--aqua-ink)"><use href="#i-live"/></svg>
+          <h2>Sigue la mesa desde tu <span class="hl">móvil</span></h2>
+          <p class="muted small">Pide el código de 4 letras a quien creó el lobby. Al entrar eliges cuál de los comensales eres.</p>
         </div>
-    </header>
-
-    <!-- Main Content Container -->
-    <main class="max-w-4xl w-full mx-auto p-4 sm:p-6 flex-grow">
-
-        <!-- VIEW 1: SETUP -->
-        <section id="viewSetup" class="bg-white rounded-3xl p-6 sm:p-8 card-shadow border border-purple-100 transition-all">
-            <div class="text-center max-w-lg mx-auto mb-8">
-                <span class="bg-purple-50 text-purple-700 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-purple-200">
-                    2Tomatoes Games
-                </span>
-                <h2 class="text-3xl font-bold font-heading text-slate-800 mt-3">¿Cuántos van a cenar?</h2>
-                <p class="text-slate-500 text-sm mt-1">El presupuesto inicial se asigna automáticamente según las reglas oficiales.</p>
-            </div>
-
-            <!-- Player count selector -->
-            <div class="mb-8">
-                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 text-center">Número de Jugadores (3 a 8)</label>
-                <div class="grid grid-cols-6 gap-2 max-w-md mx-auto">
-                    <button type="button" onclick="setPlayerCount(3)" id="btnCount3" class="count-btn py-3 rounded-2xl font-heading font-bold text-lg border-2 transition">3</button>
-                    <button type="button" onclick="setPlayerCount(4)" id="btnCount4" class="count-btn py-3 rounded-2xl font-heading font-bold text-lg border-2 transition">4</button>
-                    <button type="button" onclick="setPlayerCount(5)" id="btnCount5" class="count-btn py-3 rounded-2xl font-heading font-bold text-lg border-2 transition">5</button>
-                    <button type="button" onclick="setPlayerCount(6)" id="btnCount6" class="count-btn py-3 rounded-2xl font-heading font-bold text-lg border-2 transition">6</button>
-                    <button type="button" onclick="setPlayerCount(7)" id="btnCount7" class="count-btn py-3 rounded-2xl font-heading font-bold text-lg border-2 transition">7</button>
-                    <button type="button" onclick="setPlayerCount(8)" id="btnCount8" class="count-btn py-3 rounded-2xl font-heading font-bold text-lg border-2 transition">8</button>
-                </div>
-            </div>
-
-            <!-- Savings Banner Info -->
-            <div class="bg-gradient-to-r from-ocean-50 to-purple-50 border border-purple-200 rounded-2xl p-4 max-w-md mx-auto mb-8 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-ocean-600 to-purple-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
-                        💶
-                    </div>
-                    <div>
-                        <div class="text-xs text-purple-950 font-bold uppercase">Ahorros Iniciales</div>
-                        <div class="text-slate-600 text-xs">Según reglamento oficial</div>
-                    </div>
-                </div>
-                <div id="initialBudgetBadge" class="text-2xl font-heading font-bold text-purple-800">
-                    900 € <span class="text-xs font-normal text-purple-600">/ pers.</span>
-                </div>
-            </div>
-
-            <!-- Player Names Input List -->
-            <div class="max-w-md mx-auto mb-8">
-                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center justify-between">
-                    <span>Nombre de los comensales</span>
-                    <button type="button" onclick="randomizeNames()" class="text-xs text-purple-600 hover:underline font-semibold flex items-center gap-1">
-                        <i class="fa-solid fa-dice text-purple-500"></i> Nombres aleatorios
-                    </button>
-                </h3>
-                <div id="playerInputsContainer" class="space-y-3">
-                    <!-- Dynamic inputs injected by JS -->
-                </div>
-            </div>
-
-            <!-- Start Game Button -->
-            <div class="text-center max-w-md mx-auto">
-                <button onclick="startGame()" class="w-full py-4 px-6 bg-gradient-to-r from-ocean-600 via-indigo-600 to-purple-600 hover:from-ocean-700 hover:to-purple-700 active:scale-[0.99] text-white text-lg font-heading font-bold rounded-2xl shadow-lg shadow-purple-600/30 transition duration-200 flex items-center justify-center gap-2">
-                    <span>¡EMPEZAR A TAPEAR!</span>
-                    <i class="fa-solid fa-utensils"></i>
-                </button>
-            </div>
-        </section>
-
-        <!-- VIEW 2: GAME BOARD -->
-        <section id="viewGame" class="hidden space-y-6">
-
-            <!-- Round Header & Status Bar -->
-            <div class="bg-white rounded-2xl p-4 sm:p-5 card-shadow border border-purple-100 flex flex-wrap items-center justify-between gap-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-800 flex items-center justify-center text-xl font-heading font-bold">
-                        🍺
-                    </div>
-                    <div>
-                        <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Progreso de la noche</div>
-                        <h2 class="text-xl font-bold font-heading text-slate-800" id="currentRoundTitle">Bar / Ronda 1</h2>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <button onclick="openPayModal('normal')" class="px-5 py-3 bg-gradient-to-r from-ocean-600 to-purple-600 hover:from-ocean-700 hover:to-purple-700 text-white font-heading font-bold text-sm sm:text-base rounded-xl shadow-md shadow-purple-600/20 transition flex items-center gap-2">
-                        <i class="fa-solid fa-receipt"></i>
-                        <span>PEDIR LA CUENTA</span>
-                    </button>
-                    <button onclick="openCalculatorModal()" title="Calculadora de Cartas" class="px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition flex items-center gap-2 text-sm shadow-md shadow-purple-600/20">
-                        <i class="fa-solid fa-calculator text-base"></i>
-                        <span class="hidden sm:inline">Calculadora</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Player Money Cards Grid -->
-            <div>
-                <div class="flex items-center justify-between mb-3 px-1">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Estado de Ahorros de los Jugadores</h3>
-                    <span class="text-xs text-slate-400 font-medium">El que llegue a 0€ pierde la partida</span>
-                </div>
-                <div id="playersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Dynamic player cards generated here -->
-                </div>
-            </div>
-
-            <!-- Action Quick Shortcut Cards -->
-            <div class="bg-gradient-to-r from-ocean-50/70 to-purple-50/80 border border-purple-200 rounded-2xl p-4 sm:p-5">
-                <h4 class="text-xs font-bold uppercase tracking-wider text-purple-950 mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-wand-magic-sparkles text-purple-600"></i>
-                    <span>Accesos Rápidos de Cartas Especiales</span>
-                </h4>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <button onclick="openPayModal('a_medias')" class="p-3 bg-white hover:bg-purple-100/60 rounded-xl border border-purple-200 text-left transition flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-purple-600/10 text-purple-700 flex items-center justify-center font-bold text-sm font-heading">
-                            7
-                        </div>
-                        <div>
-                            <div class="font-bold text-sm text-slate-800">A MEDIAS</div>
-                            <div class="text-xs text-slate-500">División al 50% entre 2 jugadores</div>
-                        </div>
-                    </button>
-
-                    <button onclick="openPayModal('a_pachas')" class="p-3 bg-white hover:bg-purple-100/60 rounded-xl border border-purple-200 text-left transition flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-purple-600/10 text-purple-700 flex items-center justify-center font-bold text-sm font-heading">
-                            8
-                        </div>
-                        <div>
-                            <div class="font-bold text-sm text-slate-800">A PACHAS</div>
-                            <div class="text-xs text-slate-500">Repartir cuenta equitativamente entre varios</div>
-                        </div>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Payment Log / History -->
-            <div class="bg-white rounded-2xl p-5 card-shadow border border-purple-100">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-heading font-bold text-slate-800 text-lg flex items-center gap-2">
-                        <i class="fa-solid fa-clock-rotate-left text-purple-600"></i>
-                        <span>Historial de Bares</span>
-                    </h3>
-                    <button id="undoBtn" onclick="undoLastRound()" class="text-xs font-bold text-slate-500 hover:text-purple-600 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1.5" disabled>
-                        <i class="fa-solid fa-rotate-left"></i> Deshacer último pago
-                    </button>
-                </div>
-
-                <div id="historyList" class="space-y-2.5 max-h-60 overflow-y-auto pr-1">
-                    <div class="text-center py-6 text-slate-400 text-sm italic">
-                        Aún no se ha pagado ninguna cuenta. ¡A tapear!
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- VIEW 3: GAME OVER -->
-        <section id="viewGameOver" class="hidden bg-white rounded-3xl p-6 sm:p-10 card-shadow border border-purple-100 text-center space-y-8">
-            <div>
-                <span class="inline-block px-4 py-1.5 bg-purple-100 text-purple-900 font-bold text-xs uppercase tracking-widest rounded-full mb-3 border border-purple-200">
-                    ¡Fin de la Partida! 💸
-                </span>
-                <h2 class="text-3xl sm:text-4xl font-heading font-bold text-slate-800">¡Alguien se ha quedado sin dinero!</h2>
-                <p class="text-slate-500 text-sm mt-1" id="bankruptMessage">Un participante no ha podido pagar la cuenta.</p>
-            </div>
-
-            <!-- Podium Winner Display -->
-            <div id="podiumContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-xl mx-auto items-end pt-4">
-                <!-- Injected via JS -->
-            </div>
-
-            <!-- Full Leaderboard Table -->
-            <div class="max-w-lg mx-auto bg-slate-50 rounded-2xl p-4 border border-slate-200 text-left">
-                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Clasificación Final</h4>
-                <div id="finalLeaderboardList" class="space-y-2">
-                    <!-- Dynamic ranking items -->
-                </div>
-            </div>
-
-            <!-- Buttons -->
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-                <button onclick="startNewMatchSamePlayers()" class="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-ocean-600 to-purple-600 hover:from-ocean-700 hover:to-purple-700 text-white font-heading font-bold rounded-xl transition shadow-lg shadow-purple-600/20">
-                    <i class="fa-solid fa-arrow-rotate-right mr-1.5"></i> Revancha (Mismos jugadores)
-                </button>
-                <button onclick="showView('setup')" class="w-full sm:w-auto px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-heading font-bold rounded-xl transition">
-                    <i class="fa-solid fa-users mr-1.5"></i> Nueva Partida (Cambiar jugadores)
-                </button>
-            </div>
-        </section>
-
-    </main>
-
-    <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200/60 bg-white/50 mt-8">
-        Basado en el juego de cartas <strong class="text-slate-600">La Cuenta</strong> de <span class="text-purple-600 font-semibold">2Tomatoes Games</span>.
-    </footer>
-
-    <!-- MODAL 1: CONFIRM RESET -->
-    <div id="confirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-6 card-shadow border border-purple-100 text-center space-y-4">
-            <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 mx-auto flex items-center justify-center text-2xl font-bold font-heading">
-                ❓
-            </div>
-            <h3 class="text-lg font-heading font-bold text-slate-800" id="confirmModalTitle">¿Estás seguro?</h3>
-            <p class="text-xs text-slate-500" id="confirmModalDesc">Esta acción reiniciará el dinero y los datos de la partida actual.</p>
-            <div class="grid grid-cols-2 gap-2 pt-2">
-                <button type="button" onclick="closeConfirmModal()" class="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
-                    Cancelar
-                </button>
-                <button type="button" id="confirmModalExecuteBtn" class="py-2.5 bg-gradient-to-r from-ocean-600 to-purple-600 hover:from-ocean-700 hover:to-purple-700 text-white text-xs font-bold rounded-xl transition shadow-md">
-                    Sí, Confirmar
-                </button>
-            </div>
+        <div>
+          <label for="joinCode" class="label">Código del lobby</label>
+          <input type="text" id="joinCode" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="K7QM" class="input code" style="text-align:center; margin-top:6px; font-size:30px">
         </div>
+        <p id="joinError" class="err-box" hidden></p>
+        <button type="button" id="joinBtn" class="btn btn-red btn-big" onclick="joinLobbyFromForm()">Entrar al lobby</button>
+        <p id="joinUnavailable" class="muted tiny" style="text-align:center" hidden>El modo en línea no está disponible en esta página todavía.</p>
+      </div>
+
+      <div id="setupCreate" class="stack" style="gap:22px">
+        <div class="hero-setup">
+          <div class="tapas-strip" aria-hidden="true"><svg><use href="#t-beer"/></svg><svg><use href="#t-olive"/></svg><svg><use href="#t-tortilla"/></svg><svg><use href="#t-wine"/></svg><svg><use href="#t-bravas"/></svg><svg><use href="#t-pimiento"/></svg><svg><use href="#t-croqueta"/></svg></div>
+          <span class="label">Cuenta de la mesa</span>
+          <h2>¿Cuántos van a <span class="hl">tapear</span>?</h2>
+          <p class="muted small">Los ahorros iniciales salen del reglamento según el número de comensales.</p>
+        </div>
+
+        <div class="stack" style="gap:8px">
+          <div class="label" style="text-align:center">Jugadores (3 a 8)</div>
+          <div class="count-grid" id="countGrid"></div>
+        </div>
+
+        <div class="budget narrow">
+          <div class="row" style="flex-wrap:nowrap">
+            <svg class="ic ic-lg"><use href="#i-coin"/></svg>
+            <div><div style="font-weight:900">Ahorros iniciales</div><div class="tiny muted">por persona</div></div>
+          </div>
+          <strong id="initialBudgetBadge">900 €</strong>
+        </div>
+
+        <div class="narrow stack" style="gap:10px">
+          <div class="row between">
+            <span class="label">Comensales · marca cuál eres tú</span>
+            <button type="button" class="link small" onclick="randomizeNames()" style="display:inline-flex;align-items:center;gap:4px"><svg class="ic ic-sm"><use href="#i-dice"/></svg>Nombres al azar</button>
+          </div>
+          <div id="playerInputsContainer" class="stack" style="gap:8px"></div>
+        </div>
+
+        <div class="narrow">
+          <button type="button" class="btn btn-red btn-big" onclick="startGame()">¡A tapear!</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PARTIDA -->
+    <section id="viewGame" class="stack" style="gap:18px" hidden>
+      <div id="lobbyBar" hidden></div>
+      <div id="meBar" hidden></div>
+
+      <div class="piece pad row between">
+        <div class="row" style="flex-wrap:nowrap">
+          <div class="round-badge" id="roundBadge">1</div>
+          <div>
+            <div class="label">Bar de la noche <span style="color:var(--butter-edge)">✦</span></div>
+            <h2 class="round-title" id="currentRoundTitle">Ronda 1</h2>
+          </div>
+        </div>
+        <div class="pay-actions" data-host-only>
+          <button type="button" class="btn btn-red" onclick="openPayModal('normal')"><svg class="ic"><use href="#i-receipt"/></svg>Pedir la cuenta</button>
+          <button type="button" class="btn" onclick="openPayModal('a_medias')" title="Dos jugadores pagan el 50% cada uno"><span class="btn-num">7</span>A Medias</button>
+          <button type="button" class="btn" onclick="openPayModal('a_pachas')" title="La cuenta se reparte entre varios"><span class="btn-num">8</span>A Pachas</button>
+          <button type="button" class="btn btn-icon" onclick="openCalculatorModal()" aria-label="Calculadora" title="Calculadora"><svg class="ic"><use href="#i-calc"/></svg></button>
+        </div>
+      </div>
+
+      <div id="overBanner" class="banner" hidden>
+        <svg class="ic"><use href="#i-flame"/></svg>
+        <span class="grow">La partida terminó. Si una cuenta salió mal, corrígela abajo en el historial y la partida seguirá.</span>
+      </div>
+
+      <div class="stack" style="gap:16px">
+        <div class="row between">
+          <h3 class="label section-h"><svg aria-hidden="true"><use href="#t-olive"/></svg>Clasificación · de más a menos ahorros</h3>
+          <span class="tiny muted" style="font-weight:700">Quien llegue a 0 € pierde</span>
+        </div>
+        <div id="playersGrid" class="players" style="padding-top:6px"></div>
+        <p class="tiny muted">Quien paga la cuenta (o quien la pide en A Medias / A Pachas) gana 1 ficha. Cada ficha es una carta extra en mano, sobre las 5 iniciales.</p>
+      </div>
+
+      <div class="piece pad ticket invoice">
+        <div class="inv-brand">
+          <svg class="ic ic-lg"><use href="#i-receipt"/></svg>
+          <h3>Bar La Cuenta</h3>
+          <p>Tapas · Vinos · Raciones</p>
+          <p>C/ de la Mesa, s/n · NIF B-00000000</p>
+        </div>
+        <div class="inv-title">Factura simplificada · Historial de bares</div>
+        <div class="inv-meta">
+          <span>Fecha</span><b id="invDate">—</b>
+          <span>Mesa</span><b id="invTable">—</b>
+          <span>Nº cuentas</span><b id="invCount">0</b>
+        </div>
+        <div class="inv-cols"><span>Rd.</span><span>Concepto</span><span>Importe</span></div>
+        <div id="historyList" class="history"></div>
+        <div class="inv-sub"><span>Base imponible</span><b id="invBase">0 €</b></div>
+        <div class="inv-sub"><span>IVA (10 %) incl.</span><b id="invTax">0 €</b></div>
+        <div class="ticket-total"><span>TOTAL DE LA NOCHE</span><b id="nightTotal">0 €</b></div>
+        <div class="inv-foot">
+          <div class="barcode" aria-hidden="true"></div>
+          <p>¡Gracias por su visita!</p>
+          <p class="inv-help" data-host-only>Toca el lápiz de cualquier línea para corregir el importe, quién pagó o quién pidió. Los ahorros y las fichas se recalculan solos.</p>
+          <button type="button" id="undoBtn" class="btn btn-sm" data-host-only onclick="undoLastRound()" disabled><svg class="ic ic-sm"><use href="#i-undo"/></svg>Deshacer última cuenta</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FIN -->
+    <section id="viewGameOver" class="piece pad stack" style="gap:22px; text-align:center" hidden>
+      <div class="stack" style="gap:6px; align-items:center">
+        <span class="label">Fin de la partida</span>
+        <div class="tapas-strip" aria-hidden="true"><svg><use href="#t-wine"/></svg><svg><use href="#t-beer"/></svg><svg><use href="#t-wine"/></svg></div>
+        <h2 class="display" style="font-size:clamp(28px,6vw,38px); line-height:1.05">¡Alguien se quedó <span class="hl">sin un euro</span>!</h2>
+        <p class="muted small" id="bankruptMessage"></p>
+      </div>
+      <div id="podiumContainer" class="podium"></div>
+      <div class="narrow stack" style="gap:8px; text-align:left">
+        <div class="label">Clasificación final</div>
+        <div id="finalLeaderboardList" class="board"></div>
+      </div>
+      <div data-spectator-only hidden>
+        <button type="button" class="btn" onclick="leaveLobby()"><svg class="ic"><use href="#i-exit"/></svg>Salir del lobby</button>
+      </div>
+      <div data-host-only class="row" style="justify-content:center">
+        <button type="button" class="btn btn-red" onclick="startNewMatchSamePlayers()"><svg class="ic"><use href="#i-reset"/></svg>Revancha</button>
+        <button type="button" class="btn" onclick="backToFix()"><svg class="ic"><use href="#i-pencil"/></svg>Corregir el historial</button>
+        <button type="button" class="btn" onclick="showView('setup')"><svg class="ic"><use href="#i-users"/></svg>Nueva partida</button>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="wrap stack" style="gap:10px; align-items:center"><div class="tapas-strip" style="opacity:.8" aria-hidden="true"><svg><use href="#t-cheese"/></svg><svg><use href="#t-bread"/></svg><svg><use href="#t-beer"/></svg><svg><use href="#t-pimiento"/></svg><svg><use href="#t-wine"/></svg></div><span>Herramienta de fans, no oficial. Basada en el juego de cartas La Cuenta de 2Tomatoes Games.</span></div></footer>
+</div>
+
+<!-- CONFIRMAR -->
+<div id="confirmModal" class="modal" hidden>
+  <div class="piece sheet" style="max-width:380px; text-align:center">
+    <h3 class="display" style="font-size:22px" id="confirmModalTitle">¿Seguro?</h3>
+    <p class="muted small" id="confirmModalDesc"></p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+      <button type="button" class="btn" onclick="closeConfirmModal()">Cancelar</button>
+      <button type="button" class="btn btn-red" id="confirmModalExecuteBtn">Sí, confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGAR / EDITAR -->
+<div id="payModal" class="modal" hidden>
+  <div class="piece sheet">
+    <div class="sheet-head">
+      <h3 id="payModalTitle"><svg class="ic ic-lg"><use href="#i-receipt"/></svg>Pedir la cuenta</h3>
+      <button type="button" class="btn btn-icon" onclick="closePayModal()" aria-label="Cerrar"><svg class="ic"><use href="#i-x"/></svg></button>
+    </div>
+    <p id="payModalError" class="err-box" hidden></p>
+    <div class="seg" role="group" aria-label="Forma de pago">
+      <button type="button" id="payTypeNormal" onclick="setPayType('normal')">Un jugador</button>
+      <button type="button" id="payTypeAMedias" onclick="setPayType('a_medias')">A Medias (7)</button>
+      <button type="button" id="payTypeAPachas" onclick="setPayType('a_pachas')">A Pachas (8)</button>
+    </div>
+    <div class="stack" style="gap:6px">
+      <label for="payAmountInput" class="label">Importe total de la cuenta</label>
+      <div class="money-wrap">
+        <input type="number" id="payAmountInput" class="input input-money" min="0" step="1" placeholder="120" oninput="updateSplitPreview()">
+        <span>€</span>
+      </div>
+      <p id="splitPreview" class="preview" hidden></p>
     </div>
 
-    <!-- MODAL 2: PAY THE BILL -->
-    <div id="payModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-6 card-shadow border border-purple-100 space-y-5 max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="text-xl font-heading font-bold text-slate-800 flex items-center gap-2" id="payModalTitle">
-                    <i class="fa-solid fa-receipt text-purple-600"></i> Pedir La Cuenta
-                </h3>
-                <button onclick="closePayModal()" class="text-slate-400 hover:text-slate-600 text-lg w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div id="payModalError" class="hidden bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl font-semibold flex items-center gap-2">
-                <i class="fa-solid fa-circle-exclamation"></i>
-                <span id="payModalErrorMsg">Introduce un importe válido.</span>
-            </div>
-
-            <!-- Pay Mode Toggle -->
-            <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 rounded-xl text-xs font-bold text-slate-600">
-                <button type="button" onclick="setPayType('normal')" id="payTypeNormal" class="py-2 rounded-lg transition text-center">Un Jugador</button>
-                <button type="button" onclick="setPayType('a_medias')" id="payTypeAMedias" class="py-2 rounded-lg transition text-center">A Medias (7)</button>
-                <button type="button" onclick="setPayType('a_pachas')" id="payTypeAPachas" class="py-2 rounded-lg transition text-center">A Pachas (8)</button>
-            </div>
-
-            <!-- Amount Input -->
-            <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Importe Total de la Cuenta (€)</label>
-                <div class="relative">
-                    <input type="number" id="payAmountInput" min="0" step="5" placeholder="Ej. 120" class="w-full pl-4 pr-12 py-3.5 bg-slate-50 border-2 border-slate-200 focus:border-purple-500 focus:bg-white rounded-2xl text-2xl font-heading font-bold text-slate-800 outline-none transition">
-                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-2xl font-heading text-slate-400">€</span>
-                </div>
-            </div>
-
-            <!-- Mode 1: Single Payer Selection -->
-            <div id="sectionSinglePayer" class="space-y-2">
-                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">¿Quién paga la cuenta?</label>
-                <div id="singlePayerList" class="grid grid-cols-2 gap-2">
-                    <!-- Dynamic choices -->
-                </div>
-            </div>
-
-            <!-- Mode 2: A Medias -->
-            <div id="sectionAMedias" class="hidden space-y-3 bg-purple-50/70 p-4 rounded-2xl border border-purple-200">
-                <p class="text-xs text-purple-950 font-medium">
-                    <i class="fa-solid fa-circle-info mr-1 text-purple-600"></i> El participante que pidió la cuenta y otro seleccionado pagan el 50% cada uno.
-                </p>
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-purple-950 mb-1">Participante 1 (quien pide):</label>
-                    <select id="aMediasP1" class="w-full p-3 bg-white border border-purple-200 rounded-xl text-sm font-semibold text-slate-800 outline-none"></select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-purple-950 mb-1">Participante 2 (escogido):</label>
-                    <select id="aMediasP2" class="w-full p-3 bg-white border border-purple-200 rounded-xl text-sm font-semibold text-slate-800 outline-none"></select>
-                </div>
-            </div>
-
-            <!-- Mode 3: A Pachas -->
-            <div id="sectionAPachas" class="hidden space-y-2 bg-purple-50/70 p-4 rounded-2xl border border-purple-200">
-                <p class="text-xs text-purple-950 font-medium mb-2">
-                    <i class="fa-solid fa-circle-info mr-1 text-purple-600"></i> Selecciona los participantes entre los que se divide la cuenta igualitariamente:
-                </p>
-                <div id="aPachasCheckboxes" class="space-y-2">
-                    <!-- Dynamic checkboxes -->
-                </div>
-            </div>
-
-            <!-- Submit Button -->
-            <button onclick="processPayment()" class="w-full py-4 bg-gradient-to-r from-ocean-600 to-purple-600 hover:from-ocean-700 hover:to-purple-700 active:scale-[0.98] text-white font-heading font-bold text-lg rounded-2xl shadow-lg shadow-purple-600/30 transition">
-                CONFIRMAR PAGO DE LA CUENTA
-            </button>
-        </div>
+    <div id="sectionSinglePayer" class="stack" style="gap:8px">
+      <div class="label">¿Quién paga?</div>
+      <div id="singlePayerList" class="payers"></div>
     </div>
 
-    <!-- MODAL 3: CALCULATOR -->
-    <div id="calculatorModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 card-shadow border border-purple-100 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="text-xl font-heading font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-calculator text-purple-600"></i> Calculadora de la Ronda
-                </h3>
-                <button onclick="closeCalculatorModal()" class="text-slate-400 hover:text-slate-600 text-lg w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <p class="text-xs text-slate-500">Suma y resta automáticamente tus cartas de Tapa, Vino y Propina jugadas en esta ronda.</p>
-
-            <div class="space-y-3">
-                <!-- Tapas & Burned dishes calculator section -->
-                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2.5">
-                    <div class="flex items-center justify-between">
-                        <label class="block text-xs font-bold text-slate-700">Calculadora de Cartas de Tapa (€)</label>
-                        <div class="flex items-center gap-1">
-                            <button type="button" onclick="undoTapa()" class="text-[11px] font-bold text-amber-600 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 px-2 py-1 rounded-lg transition flex items-center gap-1">
-                                <i class="fa-solid fa-rotate-left"></i> Deshacer
-                            </button>
-                            <button type="button" onclick="clearTapas()" class="text-[11px] font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-lg transition flex items-center gap-1">
-                                <i class="fa-solid fa-trash-can"></i> Borrar
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Tapas Display & History (Expanded & Scrollable) -->
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-inner space-y-2">
-                        <div id="tapasHistoryDisplay" class="text-xs text-slate-600 min-h-[52px] max-h-28 overflow-y-auto font-mono bg-slate-50 p-2 rounded-lg border border-slate-100 break-words leading-relaxed">
-                            Sin tapas ni restas acumuladas
-                        </div>
-                        <div class="flex items-center justify-between pt-1">
-                            <span class="text-xs font-semibold text-slate-500">Subtotal Tapas:</span>
-                            <div class="flex items-baseline gap-1">
-                                <input type="number" id="calcTapas" value="0" class="w-28 text-right font-heading font-bold text-slate-800 text-xl outline-none bg-transparent" oninput="updateCalcTotal()">
-                                <span class="text-sm font-bold text-slate-400">€</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Tapa Addition Buttons -->
-                    <div>
-                        <div class="text-[11px] font-bold text-slate-500 mb-1.5 flex items-center gap-1">
-                            <i class="fa-solid fa-plus text-emerald-500"></i> Sumar Tapa rápida:
-                        </div>
-                        <div class="grid grid-cols-5 gap-1.5 text-xs font-bold">
-                            <button type="button" onclick="addTapaCard(10)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+10€</button>
-                            <button type="button" onclick="addTapaCard(20)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+20€</button>
-                            <button type="button" onclick="addTapaCard(30)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+30€</button>
-                            <button type="button" onclick="addTapaCard(40)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+40€</button>
-                            <button type="button" onclick="addTapaCard(50)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+50€</button>
-                            <button type="button" onclick="addTapaCard(60)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+60€</button>
-                            <button type="button" onclick="addTapaCard(70)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+70€</button>
-                            <button type="button" onclick="addTapaCard(80)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+80€</button>
-                            <button type="button" onclick="addTapaCard(90)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+90€</button>
-                            <button type="button" onclick="addTapaCard(100)" class="py-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition shadow-sm active:scale-95">+100€</button>
-                        </div>
-                    </div>
-
-                    <!-- Quick Subtraction Buttons (Platos Quemados) -->
-                    <div>
-                        <div class="text-[11px] font-bold text-slate-500 mb-1.5 flex items-center gap-1">
-                            <i class="fa-solid fa-fire text-red-500"></i> Resta rápida (Platos Quemados):
-                        </div>
-                        <div class="grid grid-cols-5 gap-1.5 text-xs font-bold">
-                            <button type="button" onclick="addTapaCard(-10)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-10€</button>
-                            <button type="button" onclick="addTapaCard(-20)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-20€</button>
-                            <button type="button" onclick="addTapaCard(-30)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-30€</button>
-                            <button type="button" onclick="addTapaCard(-40)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-40€</button>
-                            <button type="button" onclick="addTapaCard(-50)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-50€</button>
-                            <button type="button" onclick="addTapaCard(-60)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-60€</button>
-                            <button type="button" onclick="addTapaCard(-70)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-70€</button>
-                            <button type="button" onclick="addTapaCard(-80)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-80€</button>
-                            <button type="button" onclick="addTapaCard(-90)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-90€</button>
-                            <button type="button" onclick="addTapaCard(-100)" class="py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-xl transition shadow-sm active:scale-95">-100€</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Plus Indicator -->
-                <div class="flex justify-center -my-1">
-                    <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 font-bold text-xs flex items-center justify-center shadow-sm">+</span>
-                </div>
-
-                <!-- Wine Card Counter section -->
-                <div class="bg-purple-50/80 p-3.5 rounded-2xl border border-purple-200">
-                    <div class="flex items-center justify-between mb-2">
-                        <div>
-                            <div class="text-xs font-bold text-purple-950 flex items-center gap-1.5">
-                                <i class="fa-solid fa-wine-glass text-purple-600"></i> Cartas de Vino jugadas
-                            </div>
-                            <div class="text-[11px] text-purple-800/80">Escala oficial (1=30€, 2=60€, 3=120€, 4=180€, 5=240€)</div>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-3">
-                        <div class="flex items-center border border-purple-300 rounded-xl bg-white overflow-hidden shadow-sm">
-                            <button type="button" onclick="adjustWineCount(-1)" class="w-10 h-10 bg-purple-50 hover:bg-purple-100 text-purple-800 font-bold text-lg flex items-center justify-center transition">-</button>
-                            <input type="number" id="calcWineCount" min="0" max="20" value="0" class="w-12 text-center font-heading font-bold text-purple-900 text-lg outline-none bg-transparent">
-                            <button type="button" onclick="adjustWineCount(1)" class="w-10 h-10 bg-purple-50 hover:bg-purple-100 text-purple-800 font-bold text-lg flex items-center justify-center transition">+</button>
-                        </div>
-                        <div class="flex-grow text-right">
-                            <div class="text-[11px] text-purple-800 uppercase font-semibold">Subtotal Vino:</div>
-                            <div id="calcWineSubtotalDisplay" class="text-lg font-heading font-bold text-purple-700">0 €</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Plus Indicator -->
-                <div class="flex justify-center -my-1">
-                    <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 font-bold text-xs flex items-center justify-center shadow-sm">+</span>
-                </div>
-
-                <!-- Propina card section -->
-                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2.5">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                                <i class="fa-solid fa-coins text-amber-500"></i> Propina (Carta 9)
-                            </div>
-                            <div class="text-[11px] text-slate-500">Precio de la tapa más barata de la mesa</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-[10px] text-slate-400 font-semibold uppercase">Subtotal Propina:</div>
-                            <div id="calcTipSubtotalDisplay" class="text-base font-heading font-bold text-slate-800">0 €</div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3 items-center pt-1">
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Nº Cartas Propina</label>
-                            <div class="flex items-center border border-slate-300 rounded-xl bg-white overflow-hidden shadow-sm">
-                                <button type="button" onclick="adjustTipCount(-1)" class="w-9 h-9 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-base flex items-center justify-center transition">-</button>
-                                <input type="number" id="calcTipCount" min="0" max="20" value="0" class="w-10 text-center font-heading font-bold text-slate-800 text-base outline-none bg-transparent" oninput="updateCalcTotal()">
-                                <button type="button" onclick="adjustTipCount(1)" class="w-9 h-9 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-base flex items-center justify-center transition">+</button>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Importe c/u (€)</label>
-                            <div class="relative">
-                                <input type="number" id="calcTip" min="0" step="5" placeholder="0" class="w-full p-2 pr-6 bg-white border border-slate-300 rounded-xl text-right font-semibold text-slate-800 outline-none text-sm" oninput="updateCalcTotal()">
-                                <span class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">€</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Total Result Display -->
-            <div class="pt-3 border-t border-slate-200 flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Calculado de la Cuenta:</span>
-                <span id="calcTotalDisplay" class="text-3xl font-heading font-bold text-purple-700">0 €</span>
-            </div>
-
-            <button onclick="useCalculatedAmount()" class="w-full py-3.5 bg-purple-600 hover:bg-purple-700 active:scale-[0.99] text-white font-heading font-bold text-base rounded-xl transition shadow-md shadow-purple-600/20">
-                Usar este total para Pedir la Cuenta
-            </button>
-        </div>
+    <div id="sectionAMedias" class="boxed" hidden>
+      <p class="small" style="font-weight:700">Quien pidió la cuenta y la persona que elige pagan el 50% cada uno.</p>
+      <div><label for="aMediasP1" class="label">Pidió la cuenta (gana la ficha)</label><select id="aMediasP1" class="select" style="margin-top:4px"></select></div>
+      <div><label for="aMediasP2" class="label">Persona elegida</label><select id="aMediasP2" class="select" style="margin-top:4px"></select></div>
     </div>
 
-    <!-- MODAL 4: RULES CHEAT SHEET -->
-    <div id="rulesModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 card-shadow border border-purple-100 space-y-5 max-h-[85vh] overflow-y-auto">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="text-xl font-heading font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-book-open text-purple-600"></i> Guía Rápida de Cartas Especiales
-                </h3>
-                <button onclick="closeRulesModal()" class="text-slate-400 hover:text-slate-600 text-lg w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                    <div class="font-bold text-slate-800 flex items-center gap-1.5">
-                        <span class="w-5 h-5 rounded bg-purple-600 text-white flex items-center justify-center text-[10px] font-heading">1</span>
-                        PLATO QUEMADO
-                    </div>
-                    <p class="text-slate-600">Bloquea un tipo de tapa. No se pueden jugar más tapas de ese tipo en la ronda.</p>
-                </div>
-
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                    <div class="font-bold text-slate-800 flex items-center gap-1.5">
-                        <span class="w-5 h-5 rounded bg-purple-600 text-white flex items-center justify-center text-[10px] font-heading">2</span>
-                        CAMBIO DE SENTIDO
-                    </div>
-                    <p class="text-slate-600">Invierte el orden de turno durante el resto de la ronda actual.</p>
-                </div>
-
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                    <div class="font-bold text-slate-800 flex items-center gap-1.5">
-                        <span class="w-5 h-5 rounded bg-purple-600 text-white flex items-center justify-center text-[10px] font-heading">3</span>
-                        TOILETTE
-                    </div>
-                    <p class="text-slate-600">Vas al baño hasta tu próximo turno. Nadie te puede escoger, ni puedes pagar la cuenta.</p>
-                </div>
-
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                    <div class="font-bold text-slate-800 flex items-center gap-1.5">
-                        <span class="w-5 h-5 rounded bg-purple-600 text-white flex items-center justify-center text-[10px] font-heading">4</span>
-                        CAFÉ
-                    </div>
-                    <p class="text-slate-600">Requiere al menos 1 tapa de cada tipo en mesa. Prohíbe jugar más cartas esta ronda.</p>
-                </div>
-
-                <div class="p-3 bg-purple-50 rounded-xl border border-purple-200 space-y-1">
-                    <div class="font-bold text-purple-900 flex items-center gap-1.5">
-                        <span class="w-5 h-5 rounded bg-purple-600 text-white flex items-center justify-center text-[10px] font-heading">7</span>
-                        A MEDIAS
-                    </div>
-                    <p class="text-purple-900">Sólo tras pedir la cuenta. Elige a alguien. Cada uno paga el 50% de la cuenta.</p>
-                </div>
-
-                <div class="p-3 bg-purple-50 rounded-xl border border-purple-200 space-y-1">
-                    <div class="font-bold text-purple-900 flex items-center gap-1.5">
-                        <span class="w-5 h-5 rounded bg-purple-600 text-white flex items-center justify-center text-[10px] font-heading">8</span>
-                        A PACHAS
-                    </div>
-                    <p class="text-purple-900">Se divide la cuenta entre todos los seleccionados equitativamente.</p>
-                </div>
-            </div>
-
-            <div class="text-center pt-2">
-                <button onclick="closeRulesModal()" class="px-6 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition">
-                    Entendido, volver al juego
-                </button>
-            </div>
-        </div>
+    <div id="sectionAPachas" class="boxed" hidden>
+      <div><label for="aPachasRequester" class="label">Pidió la cuenta (gana la ficha)</label><select id="aPachasRequester" class="select" style="margin-top:4px"></select></div>
+      <div class="label">Entre quiénes se reparte</div>
+      <div id="aPachasCheckboxes" class="stack" style="gap:6px"></div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
-    <script>
-        // --- GAME CONFIG & CONSTANTS ---
-        const BUDGET_TABLE = {
-            3: 900,
-            4: 1000,
-            5: 1100,
-            6: 1200,
-            7: 1300,
-            8: 1400
-        };
-
-        const DEFAULT_NAMES = ["Dani", "Laura", "Zaira", "Jordi", "Maria", "Litus", "Rosa", "Ariadna"];
-        const AVATAR_EMOJIS = ["🧑‍🍳", "🥘", "🍷", "🍰", "🥩", "🥗", "🦐", "🍕"];
-
-        // Official wine scaling table: 1=30, 2=60, 3=120, 4=180, 5=240
-        const WINE_PRICES_SINGLE_SET = [0, 30, 60, 120, 180, 240];
-
-        // --- GAME STATE ---
-        let gameState = {
-            playerCount: 3,
-            initialBudget: 900,
-            players: [], // Array of { id, name, emoji, currentMoney, totalPaid }
-            round: 1,
-            history: [], // Array of round records for undo
-            payType: 'normal',
-            selectedSinglePayerId: null
-        };
-
-        let tapasList = [];
-
-        // --- SETUP VIEW FUNCTIONS ---
-        function setPlayerCount(count) {
-            gameState.playerCount = count;
-            gameState.initialBudget = BUDGET_TABLE[count] || 900;
-            
-            // Update badge
-            const badge = document.getElementById('initialBudgetBadge');
-            if (badge) {
-                badge.innerHTML = `${gameState.initialBudget} € <span class="text-xs font-normal text-purple-600">/ pers.</span>`;
-            }
-
-            // Update count buttons UI
-            for (let i = 3; i <= 8; i++) {
-                const btn = document.getElementById(`btnCount${i}`);
-                if (btn) {
-                    if (i === count) {
-                        btn.className = "count-btn py-3 rounded-2xl font-heading font-bold text-lg border-2 border-purple-600 bg-gradient-to-r from-ocean-600 to-purple-600 text-white shadow-md transition";
-                    } else {
-                        btn.className = "count-btn py-3 rounded-2xl font-heading font-bold text-lg border-2 border-slate-200 text-slate-700 hover:border-purple-400 hover:bg-purple-50 transition";
-                    }
-                }
-            }
-
-            renderPlayerInputs();
-        }
-
-        function renderPlayerInputs() {
-            const container = document.getElementById('playerInputsContainer');
-            if (!container) return;
-
-            // Save existing input values if user already entered names
-            const existingValues = [];
-            for (let i = 0; i < 8; i++) {
-                const inp = document.getElementById(`playerName_${i}`);
-                if (inp && inp.value.trim() !== '') {
-                    existingValues[i] = inp.value.trim();
-                }
-            }
-
-            container.innerHTML = '';
-            for (let i = 0; i < gameState.playerCount; i++) {
-                const defaultName = existingValues[i] || DEFAULT_NAMES[i] || `Jugador ${i + 1}`;
-                const emoji = AVATAR_EMOJIS[i % AVATAR_EMOJIS.length];
-
-                const row = document.createElement('div');
-                row.className = 'flex items-center gap-2';
-                row.innerHTML = `
-                    <span class="w-10 h-10 rounded-xl bg-purple-100 border border-purple-200 flex items-center justify-center text-lg shrink-0">${emoji}</span>
-                    <input type="text" id="playerName_${i}" value="${escapeHtml(defaultName)}" placeholder="Nombre jugador ${i + 1}" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-purple-500 focus:bg-white rounded-xl font-medium text-slate-800 outline-none transition text-sm">
-                `;
-                container.appendChild(row);
-            }
-        }
-
-        function randomizeNames() {
-            const shuffled = [...DEFAULT_NAMES].sort(() => Math.random() - 0.5);
-            for (let i = 0; i < gameState.playerCount; i++) {
-                const inp = document.getElementById(`playerName_${i}`);
-                if (inp) inp.value = shuffled[i] || `Jugador ${i + 1}`;
-            }
-        }
-
-        function startGame() {
-            const players = [];
-            for (let i = 0; i < gameState.playerCount; i++) {
-                const inp = document.getElementById(`playerName_${i}`);
-                const name = (inp && inp.value.trim()) ? inp.value.trim() : (DEFAULT_NAMES[i] || `Jugador ${i + 1}`);
-                players.push({
-                    id: 'player_' + i,
-                    name: name,
-                    emoji: AVATAR_EMOJIS[i % AVATAR_EMOJIS.length],
-                    currentMoney: gameState.initialBudget,
-                    totalPaid: 0
-                });
-            }
-
-            gameState.players = players;
-            gameState.selectedSinglePayerId = players[0]?.id || null;
-            gameState.round = 1;
-            gameState.history = [];
-
-            showView('game');
-            renderGameBoard();
-        }
-
-        function renderGameBoard() {
-            // Update Round Title
-            document.getElementById('currentRoundTitle').innerText = `Bar / Ronda ${gameState.round}`;
-
-            // Render Player Cards
-            const grid = document.getElementById('playersGrid');
-            grid.innerHTML = '';
-
-            gameState.players.forEach(p => {
-                const percentage = Math.max(0, Math.min(100, (p.currentMoney / gameState.initialBudget) * 100));
-
-                const card = document.createElement('div');
-                card.className = `p-4 rounded-2xl bg-white border border-slate-200 card-shadow space-y-3 relative overflow-hidden transition`;
-                
-                card.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                            <span class="text-2xl">${p.emoji}</span>
-                            <div>
-                                <h4 class="font-bold text-slate-800 text-base leading-tight">${escapeHtml(p.name)}</h4>
-                                <span class="text-[10px] text-slate-400 font-medium">Comensal</span>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <div class="font-heading font-bold text-xl ${p.currentMoney <= 200 ? 'text-red-600' : 'text-purple-700'}">
-                                ${p.currentMoney.toLocaleString('es-ES')} €
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Progress Bar -->
-                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                        <div class="h-full ${p.currentMoney <= 200 ? 'bg-red-500' : 'bg-gradient-to-r from-ocean-500 to-purple-600'} transition-all duration-300" style="width: ${percentage}%"></div>
-                    </div>
-
-                    <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
-                        <span>Total gastado: ${p.totalPaid.toLocaleString('es-ES')} €</span>
-                        <span>Inicial: ${gameState.initialBudget} €</span>
-                    </div>
-                `;
-
-                grid.appendChild(card);
-            });
-
-            // Render History List
-            const historyList = document.getElementById('historyList');
-            const undoBtn = document.getElementById('undoBtn');
-
-            if (gameState.history.length === 0) {
-                historyList.innerHTML = `<div class="text-center py-6 text-slate-400 text-sm italic">Aún no se ha pagado ninguna cuenta. ¡A tapear!</div>`;
-                undoBtn.disabled = true;
-            } else {
-                historyList.innerHTML = '';
-                undoBtn.disabled = false;
-
-                [...gameState.history].reverse().forEach(item => {
-                    const hCard = document.createElement('div');
-                    hCard.className = "p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs";
-                    
-                    let payDetail = "";
-                    if (item.type === 'normal') {
-                        payDetail = `Pagó <strong>${escapeHtml(item.payers[0].name)}</strong>`;
-                    } else if (item.type === 'a_medias') {
-                        payDetail = `A Medias: <strong>${escapeHtml(item.payers[0].name)}</strong> y <strong>${escapeHtml(item.payers[1].name)}</strong> (${item.amountPerPerson}€ c/u)`;
-                    } else if (item.type === 'a_pachas') {
-                        payDetail = `A Pachas entre ${item.payers.length} personas (${item.amountPerPerson}€ c/u)`;
-                    }
-
-                    hCard.innerHTML = `
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-6 h-6 rounded-lg bg-purple-100 text-purple-700 font-bold flex items-center justify-center text-xs">
-                                R${item.round}
-                            </span>
-                            <div>
-                                <div class="text-slate-800">${payDetail}</div>
-                            </div>
-                        </div>
-                        <div class="font-heading font-bold text-slate-800 text-sm">
-                            ${item.amount.toLocaleString('es-ES')} €
-                        </div>
-                    `;
-                    historyList.appendChild(hCard);
-                });
-            }
-        }
-
-        // --- PAYMENT MODAL FUNCTIONS ---
-        function openPayModal(type = 'normal') {
-            document.getElementById('payModalError').classList.add('hidden');
-            document.getElementById('payAmountInput').value = '';
-            
-            if (!gameState.selectedSinglePayerId || !gameState.players.some(p => p.id === gameState.selectedSinglePayerId)) {
-                gameState.selectedSinglePayerId = gameState.players[0]?.id || null;
-            }
-
-            setPayType(type);
-            document.getElementById('payModal').classList.remove('hidden');
-        }
-
-        function closePayModal() {
-            document.getElementById('payModal').classList.add('hidden');
-        }
-
-        function setPayType(type) {
-            gameState.payType = type;
-
-            ['TypeNormal', 'TypeAMedias', 'TypeAPachas'].forEach(id => {
-                const btn = document.getElementById(`pay${id}`);
-                if (btn) btn.className = "py-2 rounded-lg transition text-center";
-            });
-
-            document.getElementById('sectionSinglePayer').classList.add('hidden');
-            document.getElementById('sectionAMedias').classList.add('hidden');
-            document.getElementById('sectionAPachas').classList.add('hidden');
-
-            if (type === 'normal') {
-                document.getElementById('payTypeNormal').className = "py-2 rounded-lg transition text-center bg-white text-purple-700 shadow-sm font-bold";
-                document.getElementById('sectionSinglePayer').classList.remove('hidden');
-                renderSinglePayerOptions();
-            } else if (type === 'a_medias') {
-                document.getElementById('payTypeAMedias').className = "py-2 rounded-lg transition text-center bg-white text-purple-700 shadow-sm font-bold";
-                document.getElementById('sectionAMedias').classList.remove('hidden');
-                renderAMediasOptions();
-            } else if (type === 'a_pachas') {
-                document.getElementById('payTypeAPachas').className = "py-2 rounded-lg transition text-center bg-white text-purple-700 shadow-sm font-bold";
-                document.getElementById('sectionAPachas').classList.remove('hidden');
-                renderAPachasOptions();
-            }
-        }
-
-        function renderSinglePayerOptions() {
-            const list = document.getElementById('singlePayerList');
-            if (!list) return;
-            list.innerHTML = '';
-
-            if (!gameState.selectedSinglePayerId || !gameState.players.some(p => p.id === gameState.selectedSinglePayerId)) {
-                gameState.selectedSinglePayerId = gameState.players[0]?.id || null;
-            }
-
-            gameState.players.forEach(p => {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.onclick = () => {
-                    gameState.selectedSinglePayerId = p.id;
-                    renderSinglePayerOptions();
-                };
-                
-                const isSelected = gameState.selectedSinglePayerId === p.id;
-                btn.className = `p-3 rounded-xl border text-left flex items-center justify-between transition ${isSelected ? 'border-purple-600 bg-purple-50 text-purple-900 font-bold ring-2 ring-purple-500/20' : 'border-slate-200 hover:bg-slate-50 text-slate-700'}`;
-                btn.innerHTML = `
-                    <div class="flex items-center gap-2">
-                        <span>${p.emoji}</span>
-                        <span class="text-xs">${escapeHtml(p.name)}</span>
-                    </div>
-                    <span class="text-xs opacity-75">${p.currentMoney.toLocaleString('es-ES')}€</span>
-                `;
-                list.appendChild(btn);
-            });
-        }
-
-        function renderAMediasOptions() {
-            const select1 = document.getElementById('aMediasP1');
-            const select2 = document.getElementById('aMediasP2');
-            select1.innerHTML = '';
-            select2.innerHTML = '';
-
-            gameState.players.forEach((p) => {
-                const opt1 = new Option(`${p.emoji} ${p.name} (${p.currentMoney}€)`, p.id);
-                const opt2 = new Option(`${p.emoji} ${p.name} (${p.currentMoney}€)`, p.id);
-                select1.add(opt1);
-                select2.add(opt2);
-            });
-
-            if (gameState.players.length > 1) {
-                select2.selectedIndex = 1;
-            }
-        }
-
-        function renderAPachasOptions() {
-            const container = document.getElementById('aPachasCheckboxes');
-            container.innerHTML = '';
-
-            gameState.players.forEach(p => {
-                const label = document.createElement('label');
-                label.className = "flex items-center justify-between p-2.5 bg-white rounded-xl border border-purple-200 cursor-pointer hover:bg-purple-50/50 transition";
-                label.innerHTML = `
-                    <div class="flex items-center gap-2 text-xs font-semibold text-slate-800">
-                        <input type="checkbox" value="${p.id}" checked class="apachas-cb w-4 h-4 rounded text-purple-600 focus:ring-purple-500 border-slate-300">
-                        <span>${p.emoji} ${escapeHtml(p.name)}</span>
-                    </div>
-                    <span class="text-xs text-slate-500 font-normal">${p.currentMoney}€ disponible</span>
-                `;
-                container.appendChild(label);
-            });
-        }
-
-        function processPayment() {
-            const amountInput = document.getElementById('payAmountInput');
-            const amount = parseFloat(amountInput.value);
-
-            const errBanner = document.getElementById('payModalError');
-            const errMsg = document.getElementById('payModalErrorMsg');
-
-            if (isNaN(amount) || amount <= 0) {
-                errMsg.innerText = "Por favor introduce un importe válido de la cuenta.";
-                errBanner.classList.remove('hidden');
-                return;
-            }
-
-            let payersList = [];
-            let amountPerPerson = 0;
-
-            if (gameState.payType === 'normal') {
-                const payer = gameState.players.find(p => p.id === gameState.selectedSinglePayerId);
-                if (!payer) {
-                    errMsg.innerText = "Selecciona un jugador para realizar el pago.";
-                    errBanner.classList.remove('hidden');
-                    return;
-                }
-                payersList = [payer];
-                amountPerPerson = amount;
-            } else if (gameState.payType === 'a_medias') {
-                const id1 = document.getElementById('aMediasP1').value;
-                const id2 = document.getElementById('aMediasP2').value;
-                if (id1 === id2) {
-                    errMsg.innerText = "Debes seleccionar dos personas distintas para dividir A Medias.";
-                    errBanner.classList.remove('hidden');
-                    return;
-                }
-                const p1 = gameState.players.find(p => p.id === id1);
-                const p2 = gameState.players.find(p => p.id === id2);
-                payersList = [p1, p2];
-                amountPerPerson = Math.round((amount / 2) * 100) / 100;
-            } else if (gameState.payType === 'a_pachas') {
-                const checkedBoxes = document.querySelectorAll('.apachas-cb:checked');
-                if (checkedBoxes.length === 0) {
-                    errMsg.innerText = "Selecciona al menos a un participante para A Pachas.";
-                    errBanner.classList.remove('hidden');
-                    return;
-                }
-                const selectedIds = Array.from(checkedBoxes).map(cb => cb.value);
-                payersList = gameState.players.filter(p => selectedIds.includes(p.id));
-                amountPerPerson = Math.round((amount / payersList.length) * 100) / 100;
-            }
-
-            // Save snapshot for Undo
-            const historyItem = {
-                round: gameState.round,
-                amount: amount,
-                type: gameState.payType,
-                payers: payersList.map(p => ({ id: p.id, name: p.name })),
-                amountPerPerson: amountPerPerson,
-                previousState: JSON.parse(JSON.stringify(gameState.players))
-            };
-
-            // Deduct money
-            payersList.forEach(p => {
-                p.currentMoney -= amountPerPerson;
-                p.totalPaid += amountPerPerson;
-            });
-
-            gameState.history.push(historyItem);
-            gameState.round++;
-
-            closePayModal();
-
-            // Check if any player goes bankrupt (money <= 0)
-            const bankruptPlayer = gameState.players.find(p => p.currentMoney <= 0);
-            if (bankruptPlayer) {
-                triggerGameOver(bankruptPlayer);
-            } else {
-                renderGameBoard();
-            }
-        }
-
-        function undoLastRound() {
-            if (gameState.history.length === 0) return;
-            const lastItem = gameState.history.pop();
-            gameState.players = lastItem.previousState;
-            gameState.round = Math.max(1, gameState.round - 1);
-            renderGameBoard();
-        }
-
-        function startNewMatchSamePlayers() {
-            gameState.players.forEach(p => {
-                p.currentMoney = gameState.initialBudget;
-                p.totalPaid = 0;
-            });
-            gameState.round = 1;
-            gameState.history = [];
-            showView('game');
-            renderGameBoard();
-        }
-
-        // --- CALCULATOR FUNCTIONS ---
-        function addTapaCard(val) {
-            tapasList.push(val);
-            renderTapasCalc();
-        }
-
-        function undoTapa() {
-            if (tapasList.length > 0) {
-                tapasList.pop();
-                renderTapasCalc();
-            }
-        }
-
-        function clearTapas() {
-            tapasList = [];
-            const input = document.getElementById('calcTapas');
-            if (input) input.value = 0;
-            renderTapasCalc();
-        }
-
-        function renderTapasCalc() {
-            const display = document.getElementById('tapasHistoryDisplay');
-            const input = document.getElementById('calcTapas');
-            
-            const sumList = tapasList.reduce((a, b) => a + b, 0);
-
-            if (tapasList.length === 0) {
-                if (display) display.innerText = "Sin tapas ni restas acumuladas";
-            } else {
-                let formattedHistory = tapasList.map((val, idx) => {
-                    if (idx === 0) return `${val > 0 ? '+' : ''}${val}`;
-                    return val >= 0 ? `+ ${val}` : `- ${Math.abs(val)}`;
-                }).join(' ');
-                
-                if (display) {
-                    display.innerText = `${formattedHistory} = ${sumList} €`;
-                    display.scrollTop = display.scrollHeight;
-                }
-            }
-
-            if (tapasList.length > 0) {
-                if (input) input.value = sumList;
-            }
-            updateCalcTotal();
-        }
-
-        function openCalculatorModal() {
-            clearTapas();
-            document.getElementById('calcWineCount').value = '0';
-            document.getElementById('calcTipCount').value = '0';
-            document.getElementById('calcTip').value = '';
-            updateCalcTotal();
-            document.getElementById('calculatorModal').classList.remove('hidden');
-        }
-
-        function closeCalculatorModal() {
-            document.getElementById('calculatorModal').classList.add('hidden');
-        }
-
-        function adjustWineCount(delta) {
-            const wineInput = document.getElementById('calcWineCount');
-            let val = parseInt(wineInput.value) || 0;
-            val = Math.max(0, val + delta);
-            wineInput.value = val;
-            updateCalcTotal();
-        }
-
-        function adjustTipCount(delta) {
-            const tipCountInput = document.getElementById('calcTipCount');
-            let val = parseInt(tipCountInput.value) || 0;
-            val = Math.max(0, val + delta);
-            tipCountInput.value = val;
-            updateCalcTotal();
-        }
-
-        function calculateWineSubtotal(wineCount) {
-            if (wineCount <= 0) return 0;
-            const fullSets = Math.floor(wineCount / 5);
-            const remainder = wineCount % 5;
-            return (fullSets * 240) + WINE_PRICES_SINGLE_SET[remainder];
-        }
-
-        function setupCalculatorInputs() {
-            ['calcTapas', 'calcWineCount', 'calcTipCount', 'calcTip'].forEach(id => {
-                const input = document.getElementById(id);
-                if (input) {
-                    input.addEventListener('input', updateCalcTotal);
-                }
-            });
-        }
-
-        function updateCalcTotal() {
-            const tapas = parseFloat(document.getElementById('calcTapas').value) || 0;
-            const wineCount = parseInt(document.getElementById('calcWineCount').value) || 0;
-            const wineSubtotal = calculateWineSubtotal(wineCount);
-
-            const tipCount = parseInt(document.getElementById('calcTipCount').value) || 0;
-            const tipVal = parseFloat(document.getElementById('calcTip').value) || 0;
-            const tipSubtotal = tipCount * tipVal;
-
-            const wineDisplay = document.getElementById('calcWineSubtotalDisplay');
-            if (wineDisplay) wineDisplay.innerText = `${wineSubtotal.toLocaleString('es-ES')} €`;
-
-            const tipDisplay = document.getElementById('calcTipSubtotalDisplay');
-            if (tipDisplay) tipDisplay.innerText = `${tipSubtotal.toLocaleString('es-ES')} €`;
-
-            const total = tapas + wineSubtotal + tipSubtotal;
-            const totalDisplay = document.getElementById('calcTotalDisplay');
-            if (totalDisplay) totalDisplay.innerText = `${total.toLocaleString('es-ES')} €`;
-            return total;
-        }
-
-        function useCalculatedAmount() {
-            const total = updateCalcTotal();
-            closeCalculatorModal();
-            openPayModal('normal');
-            document.getElementById('payAmountInput').value = total;
-        }
-
-        // --- RESET & CONFIRM MODALS ---
-        function promptResetMatch() {
-            showConfirmModal(
-                '¿Reiniciar Partida?',
-                'Se borrará el historial de pagos y todos los jugadores volverán a sus ahorros iniciales.',
-                () => {
-                    startNewMatchSamePlayers();
-                }
-            );
-        }
-
-        function promptResetToHome() {
-            if (document.getElementById('viewGame').classList.contains('hidden')) {
-                showView('setup');
-                return;
-            }
-            showConfirmModal(
-                '¿Volver al Menú Principal?',
-                'Saldrás de la partida actual para cambiar los nombres o el número de jugadores.',
-                () => {
-                    showView('setup');
-                }
-            );
-        }
-
-        function showConfirmModal(title, desc, onExecute) {
-            document.getElementById('confirmModalTitle').innerText = title;
-            document.getElementById('confirmModalDesc').innerText = desc;
-            
-            const btn = document.getElementById('confirmModalExecuteBtn');
-            btn.onclick = () => {
-                closeConfirmModal();
-                if (typeof onExecute === 'function') onExecute();
-            };
-
-            document.getElementById('confirmModal').classList.remove('hidden');
-        }
-
-        function closeConfirmModal() {
-            document.getElementById('confirmModal').classList.add('hidden');
-        }
-
-        function triggerGameOver(bankruptPlayer) {
-            renderGameBoard();
-
-            const ranked = [...gameState.players].sort((a, b) => b.currentMoney - a.currentMoney);
-            const winner = ranked[0];
-
-            document.getElementById('bankruptMessage').innerHTML = `
-                <strong>${escapeHtml(bankruptPlayer.name)}</strong> se ha quedado con <strong>${bankruptPlayer.currentMoney.toLocaleString('es-ES')} €</strong> y ha terminado la partida.
-            `;
-
-            // Render Podium
-            const podium = document.getElementById('podiumContainer');
-            podium.innerHTML = '';
-
-            const topPlayers = ranked.slice(0, 3);
-            const podiumOrder = topPlayers.length >= 3 ? [topPlayers[1], topPlayers[0], topPlayers[2]] : topPlayers;
-
-            podiumOrder.forEach((player) => {
-                if (!player) return;
-                const isWinner = player.id === winner.id;
-                const isBankrupt = player.id === bankruptPlayer.id;
-
-                const col = document.createElement('div');
-                col.className = `flex flex-col items-center ${isWinner ? 'order-1 sm:order-2' : 'order-2 sm:order-1'}`;
-                col.innerHTML = `
-                    <div class="text-4xl mb-1">${player.emoji}</div>
-                    <div class="font-bold text-sm text-slate-800">${escapeHtml(player.name)}</div>
-                    <div class="font-heading font-bold text-lg text-purple-700">${player.currentMoney.toLocaleString('es-ES')} €</div>
-                    <div class="w-full ${isWinner ? 'h-24 bg-gradient-to-t from-purple-800 via-purple-600 to-ocean-500 text-white' : 'h-16 bg-slate-200 text-slate-700'} rounded-t-2xl mt-2 flex items-center justify-center font-heading font-bold text-xl shadow-md">
-                        ${isWinner ? '👑 1º' : isBankrupt ? '💸 0€' : '🥈'}
-                    </div>
-                `;
-                podium.appendChild(col);
-            });
-
-            // Render Full Ranking List
-            const rankList = document.getElementById('finalLeaderboardList');
-            rankList.innerHTML = '';
-            ranked.forEach((p, index) => {
-                const item = document.createElement('div');
-                item.className = "flex items-center justify-between p-2.5 bg-white rounded-xl border border-slate-200 text-sm";
-                item.innerHTML = `
-                    <div class="flex items-center gap-2.5">
-                        <span class="w-6 h-6 rounded-full ${index === 0 ? 'bg-gradient-to-r from-ocean-600 to-purple-600 text-white' : 'bg-slate-200 text-slate-700'} font-bold flex items-center justify-center text-xs font-heading">
-                            ${index + 1}
-                        </span>
-                        <span>${p.emoji} <strong>${escapeHtml(p.name)}</strong></span>
-                    </div>
-                    <div class="font-heading font-bold text-slate-800">
-                        ${p.currentMoney.toLocaleString('es-ES')} €
-                    </div>
-                `;
-                rankList.appendChild(item);
-            });
-
-            if (typeof confetti === 'function') {
-                confetti({
-                    particleCount: 120,
-                    spread: 70,
-                    origin: { y: 0.6 },
-                    colors: ['#7c3aed', '#0284c7', '#a855f7', '#38bdf8']
-                });
-            }
-
-            showView('gameOver');
-        }
-
-        function openRulesModal() {
-            document.getElementById('rulesModal').classList.remove('hidden');
-        }
-
-        function closeRulesModal() {
-            document.getElementById('rulesModal').classList.add('hidden');
-        }
-
-        function showView(viewName) {
-            document.getElementById('viewSetup').classList.add('hidden');
-            document.getElementById('viewGame').classList.add('hidden');
-            document.getElementById('viewGameOver').classList.add('hidden');
-
-            if (viewName === 'setup') {
-                document.getElementById('viewSetup').classList.remove('hidden');
-                document.getElementById('headerResetBtn').classList.add('hidden');
-            } else if (viewName === 'game') {
-                document.getElementById('viewGame').classList.remove('hidden');
-                document.getElementById('headerResetBtn').classList.remove('hidden');
-            } else if (viewName === 'gameOver') {
-                document.getElementById('viewGameOver').classList.remove('hidden');
-                document.getElementById('headerResetBtn').classList.add('hidden');
-            }
-        }
-
-        function escapeHtml(str) {
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-        }
-
-        // INITIALIZATION
-        window.addEventListener('DOMContentLoaded', () => {
-            setPlayerCount(3);
-            setupCalculatorInputs();
-        });
-    </script>
-</body>
-</html>
+    <button type="button" id="payConfirmBtn" class="btn btn-red btn-big" onclick="processPayment()">Confirmar pago</button>
+    <button type="button" id="payDeleteBtn" class="btn" hidden onclick="promptDeleteEntry()"><svg class="ic"><use href="#i-trash"/></svg>Borrar esta cuenta del historial</button>
+  </div>
+</div>
+
+<!-- CALCULADORA -->
+<div id="calculatorModal" class="modal" hidden>
+  <div class="piece sheet">
+    <div class="sheet-head">
+      <h3><svg class="ic ic-lg"><use href="#i-calc"/></svg>Calculadora de la ronda</h3>
+      <button type="button" class="btn btn-icon" onclick="closeCalculatorModal()" aria-label="Cerrar"><svg class="ic"><use href="#i-x"/></svg></button>
+    </div>
+    <p class="small muted">Suma las tapas y el vino jugados en esta ronda.</p>
+
+    <div class="calc-block">
+      <div class="row between">
+        <b class="small">Cartas de tapa</b>
+        <div class="row" style="gap:6px">
+          <button type="button" class="btn btn-sm" onclick="undoTapa()"><svg class="ic ic-sm"><use href="#i-undo"/></svg>Deshacer</button>
+          <button type="button" class="btn btn-sm" onclick="clearTapas()"><svg class="ic ic-sm"><use href="#i-trash"/></svg>Borrar</button>
+        </div>
+      </div>
+      <div id="tapasHistoryDisplay" class="tape">Sin tapas ni restas todavía</div>
+      <div class="row between">
+        <span class="small muted" style="font-weight:800">Subtotal tapas</span>
+        <span><input type="number" id="calcTapas" class="inline-num" value="0" step="1"> €</span>
+      </div>
+      <div class="tiny muted" style="font-weight:800">Sumar tapa</div>
+      <div class="keys" id="keysPlus"></div>
+      <div class="tiny muted" style="font-weight:800; display:flex; align-items:center; gap:4px"><svg class="ic ic-sm"><use href="#i-flame"/></svg>Restar plato quemado</div>
+      <div class="keys minus" id="keysMinus"></div>
+    </div>
+
+    <div class="calc-block">
+      <div class="row between">
+        <div>
+          <b class="small" style="display:flex; align-items:center; gap:6px"><svg class="ic ic-sm"><use href="#i-glass"/></svg>Cartas de vino</b>
+          <div class="tiny muted">1 = 30 €, 2 = 60 €, 3 = 120 €, 4 = 180 €, 5 = 240 €</div>
+        </div>
+        <span class="sub" id="calcWineSubtotalDisplay">0 €</span>
+      </div>
+      <div class="stepper">
+        <button type="button" onclick="adjustWineCount(-1)" aria-label="Quitar vino"><svg class="ic ic-sm"><use href="#i-minus"/></svg></button>
+        <input type="number" id="calcWineCount" min="0" max="20" value="0" aria-label="Cartas de vino">
+        <button type="button" onclick="adjustWineCount(1)" aria-label="Añadir vino"><svg class="ic ic-sm"><use href="#i-plus"/></svg></button>
+      </div>
+    </div>
+
+    <div class="calc-foot">
+      <div class="total"><span class="label">Total de la cuenta</span><b id="calcTotalDisplay">0 €</b></div>
+      <button type="button" class="btn btn-olive btn-big" onclick="useCalculatedAmount()">Usar este total</button>
+    </div>
+  </div>
+</div>
+
+<!-- REGLAS -->
+<div id="rulesModal" class="modal" hidden>
+  <div class="piece sheet" style="max-width:680px">
+    <div class="sheet-head">
+      <h3><svg class="ic ic-lg"><use href="#i-book"/></svg>Cartas especiales</h3>
+      <button type="button" class="btn btn-icon" onclick="closeRulesModal()" aria-label="Cerrar"><svg class="ic"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="rules">
+      <div class="rule"><span class="cardnum">1</span><div><b><svg class="ic ic-sm"><use href="#i-flame"/></svg>Plato quemado</b><p>Bloquea un tipo de tapa: no se juegan más de ese tipo en la ronda.</p></div></div>
+      <div class="rule"><span class="cardnum">2</span><div><b><svg class="ic ic-sm"><use href="#i-swap"/></svg>Cambio de sentido</b><p>Invierte el orden de turno el resto de la ronda.</p></div></div>
+      <div class="rule"><span class="cardnum">3</span><div><b><svg class="ic ic-sm"><use href="#i-wc"/></svg>Toilette</b><p>Te vas al baño hasta tu próximo turno. Nadie te puede elegir ni puedes pagar.</p></div></div>
+      <div class="rule"><span class="cardnum">4</span><div><b><svg class="ic ic-sm"><use href="#i-coffee"/></svg>Café</b><p>Necesita al menos una tapa de cada tipo en la mesa. Nadie juega más cartas esta ronda.</p></div></div>
+      <div class="rule"><span class="cardnum">7</span><div><b><svg class="ic ic-sm"><use href="#i-half"/></svg>A Medias</b><p>Solo tras pedir la cuenta. Eliges a alguien y cada uno paga el 50%.</p></div></div>
+      <div class="rule"><span class="cardnum">8</span><div><b><svg class="ic ic-sm"><use href="#i-pie"/></svg>A Pachas</b><p>La cuenta se divide a partes iguales entre los elegidos.</p></div></div>
+      <div class="rule"><span class="cardnum">9</span><div><b><svg class="ic ic-sm"><use href="#i-tip"/></svg>Propina</b><p>Suma a la cuenta el precio de la tapa más barata de la mesa.</p></div></div>
+      <div class="rule"><span class="cardnum" style="background:var(--butter); color:var(--on-pastel)">+1</span><div><b><svg class="ic ic-sm"><use href="#i-card"/></svg>Fichas</b><p>Empiezas con 5 cartas. Cada ficha que ganas al pedir la cuenta te da una carta más.</p></div></div>
+    </div>
+    <button type="button" class="btn btn-olive" onclick="closeRulesModal()" style="align-self:center">Entendido</button>
+  </div>
+</div>
+
+<script>
+/* ===== CONFIGURACIÓN DE FIREBASE (lobby en línea fuera de Claude) =====
+   Pegue aquí los valores de su proyecto (Consola de Firebase → Configuración del proyecto → Tus apps).
+   Si se deja vacío, la app funciona igual en un solo móvil, sin lobby. */
+window.LA_CUENTA_FIREBASE = {
+  apiKey: "AIzaSyBGUjacTkDb4tQ-_smZeqx-bvoiKT3-dBY",
+  authDomain: "la-cuenta-a13c4.firebaseapp.com",
+  databaseURL: "https://la-cuenta-a13c4-default-rtdb.firebaseio.com",
+  projectId: "la-cuenta-a13c4",
+  appId: "1:491415930638:web:f9b939feb3ab53c5ea395f"
+};
+</script>
+<script>
+// --- CONFIG ---
+const BUDGET_TABLE = { 3: 900, 4: 1000, 5: 1100, 6: 1200, 7: 1300, 8: 1400 };
+const DEFAULT_NAMES = ["Dani", "Laura", "Zaira", "Jordi", "Maria", "Litus", "Rosa", "Ariadna"];
+const WINE_PRICES_SINGLE_SET = [0, 30, 60, 120, 180, 240];
+const BASE_HAND = 5;
+const TAPAS = ['t-beer', 't-olive', 't-tortilla', 't-wine', 't-bravas', 't-pimiento', 't-croqueta', 't-cheese'];
+
+let gameState = {
+  playerCount: 3,
+  initialBudget: 900,
+  players: [],   // { id, name, avatar, currentMoney, totalPaid, extraTokens }
+  round: 1,
+  history: [],   // { round, amount, type, payers:[{id,name}], amountPerPerson, tokenReceiverId, tokenReceiverName, edited }
+  payType: 'normal',
+  selectedSinglePayerId: null,
+  overId: null
+};
+let tapasList = [];
+let editIndex = null;
+let setupMe = null;
+
+// --- HELPERS ---
+function roundEuro(n) { return Math.round(Number(n) || 0); }
+function fmt(n) { return roundEuro(n).toLocaleString('es-ES'); }
+function $(id) { return document.getElementById(id); }
+function escapeHtml(str) {
+  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+function getRankedPlayers() { return [...gameState.players].sort((a, b) => b.currentMoney - a.currentMoney); }
+function findPlayer(id) { return gameState.players.find(p => p.id === id); }
+function ic(name, cls) { return `<svg class="ic ${cls || ''}" aria-hidden="true"><use href="#i-${name}"/></svg>`; }
+function avIndex(p) {
+  if (p && Number.isFinite(Number(p.avatar))) return Math.abs(Number(p.avatar)) % 8;
+  const m = p && String(p.id || '').match(/(\d+)$/);
+  return m ? Number(m[1]) % 8 : 0;
+}
+
+// Ficha de jugador: inicial del nombre sobre su color pastel; anillo rosa si va mal de dinero
+function avatarSvg(idx, mood, cls, name) {
+  const i = Math.abs(Number(idx) || 0) % 8;
+  const initial = escapeHtml((String(name || '').trim().charAt(0) || '?').toUpperCase());
+  const ring = mood === 'sad' ? 'low' : mood === 'happy' ? 'star' : '';
+  return `<span class="av ${cls || ''} ${ring}" style="background:var(--av${i})" aria-hidden="true">${initial}</span>`;
+}
+function moodFor(p) {
+  if (p.currentMoney <= 200) return 'sad';
+  return 'ok';
+}
+
+// --- SETUP ---
+function setPlayerCount(count) {
+  gameState.playerCount = count;
+  gameState.initialBudget = BUDGET_TABLE[count] || 900;
+  $('initialBudgetBadge').textContent = `${fmt(gameState.initialBudget)} €`;
+  if (setupMe !== null && setupMe >= count) setupMe = null;
+  const grid = $('countGrid');
+  grid.innerHTML = '';
+  for (let i = 3; i <= 8; i++) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = i;
+    b.setAttribute('aria-pressed', String(i === count));
+    b.setAttribute('aria-label', `${i} jugadores`);
+    b.onclick = () => setPlayerCount(i);
+    grid.appendChild(b);
+  }
+  renderPlayerInputs();
+}
+
+function renderPlayerInputs() {
+  const container = $('playerInputsContainer');
+  const existing = [];
+  for (let i = 0; i < 8; i++) {
+    const inp = $(`playerName_${i}`);
+    if (inp && inp.value.trim() !== '') existing[i] = inp.value.trim();
+  }
+  container.innerHTML = '';
+  for (let i = 0; i < gameState.playerCount; i++) {
+    const name = existing[i] || DEFAULT_NAMES[i] || `Jugador ${i + 1}`;
+    const row = document.createElement('div');
+    row.className = 'name-row';
+    row.innerHTML = `
+      ${avatarSvg(i, setupMe === i ? 'happy' : 'ok', '', name)}
+      <input type="text" id="playerName_${i}" value="${escapeHtml(name)}" placeholder="Nombre ${i + 1}" class="input grow" aria-label="Nombre del jugador ${i + 1}">
+      <button type="button" class="me-toggle" aria-pressed="${setupMe === i}" onclick="toggleSetupMe(${i})">${setupMe === i ? 'Soy yo' : 'Yo'}</button>`;
+    container.appendChild(row);
+  }
+}
+function toggleSetupMe(i) { setupMe = setupMe === i ? null : i; renderPlayerInputs(); }
+
+function randomizeNames() {
+  const shuffled = [...DEFAULT_NAMES].sort(() => Math.random() - 0.5);
+  for (let i = 0; i < gameState.playerCount; i++) {
+    const inp = $(`playerName_${i}`);
+    if (inp) inp.value = shuffled[i] || `Jugador ${i + 1}`;
+  }
+}
+
+function startGame() {
+  gameState.overId = null;
+  const players = [];
+  for (let i = 0; i < gameState.playerCount; i++) {
+    const inp = $(`playerName_${i}`);
+    const name = (inp && inp.value.trim()) ? inp.value.trim() : (DEFAULT_NAMES[i] || `Jugador ${i + 1}`);
+    players.push({ id: 'player_' + i, name, avatar: i, currentMoney: gameState.initialBudget, totalPaid: 0, extraTokens: 0 });
+  }
+  gameState.players = players;
+  gameState.selectedSinglePayerId = players[0]?.id || null;
+  gameState.round = 1;
+  gameState.history = [];
+  myPlayerId = setupMe !== null ? 'player_' + setupMe : null;
+  meDismissed = false;
+  storeSet(meKey(), myPlayerId || '');
+  showView('game');
+  renderGameBoard();
+}
+
+// --- RECÁLCULO DESDE EL HISTORIAL ---
+// El dinero y las fichas siempre se derivan del historial, así editar o borrar una cuenta lo corrige todo.
+function recomputeFromHistory() {
+  gameState.players.forEach(p => { p.currentMoney = gameState.initialBudget; p.totalPaid = 0; p.extraTokens = 0; });
+  gameState.history.forEach((h, i) => {
+    h.round = i + 1;
+    h.payers.forEach(pp => {
+      const p = findPlayer(pp.id);
+      if (!p) return;
+      pp.name = p.name;
+      p.currentMoney = roundEuro(p.currentMoney - h.amountPerPerson);
+      p.totalPaid = roundEuro(p.totalPaid + h.amountPerPerson);
+    });
+    let r = h.tokenReceiverId ? findPlayer(h.tokenReceiverId) : null;
+    if (!r && h.tokenReceiverName) r = gameState.players.find(p => p.name === h.tokenReceiverName);
+    if (!r && h.payers[0]) r = findPlayer(h.payers[0].id);
+    if (r) { r.extraTokens += 1; h.tokenReceiverId = r.id; h.tokenReceiverName = r.name; }
+  });
+  gameState.round = gameState.history.length + 1;
+}
+
+function afterHistoryChange() {
+  const bankrupt = gameState.players.find(p => p.currentMoney <= 0);
+  if (bankrupt) {
+    triggerGameOver(bankrupt);
+  } else {
+    if (gameState.overId) { gameState.overId = null; showView('game'); }
+    renderGameBoard();
+  }
+}
+
+// --- TABLERO ---
+function renderTokenChips(count) {
+  if (count <= 0) return `<span class="tiny muted" style="font-style:italic">Sin fichas</span>`;
+  const visible = Math.min(count, 6);
+  let chips = '';
+  for (let i = 0; i < visible; i++) chips += '<svg class="shrimp" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-shrimp"/></svg>';
+  const extra = count > visible ? `<span class="tiny" style="font-weight:900; margin-left:4px">+${count - visible}</span>` : '';
+  return `<span class="chips">${chips}${extra}</span>`;
+}
+
+function renderGameBoard(skipSync) {
+  $('currentRoundTitle').textContent = gameState.overId ? 'Partida terminada' : `Ronda ${gameState.round}`;
+  $('roundBadge').textContent = gameState.round;
+  $('overBanner').hidden = !gameState.overId || lobby.role === 'spectator';
+
+  const grid = $('playersGrid');
+  grid.innerHTML = '';
+  const ranked = getRankedPlayers();
+  const played = gameState.history.length > 0;
+
+  ranked.forEach((p, index) => {
+    const pct = Math.max(0, Math.min(100, (p.currentMoney / gameState.initialBudget) * 100));
+    const tokens = p.extraTokens || 0;
+    const isMe = p.id === myPlayerId;
+    const lead = index === 0 && played;
+    const low = p.currentMoney <= 200;
+    const card = document.createElement('div');
+    card.className = `piece player anim ${isMe ? 'is-me' : ''} ${lead ? 'lead' : ''}`;
+    card.innerHTML = `
+      <span class="place">${lead ? ic('crown', 'ic-sm') + ' ' : ''}${index + 1}º</span>
+      <svg class="deco" aria-hidden="true"><use href="#${TAPAS[avIndex(p)]}"/></svg>
+      <div class="row" style="flex-wrap:nowrap; margin-top:4px">
+        ${avatarSvg(avIndex(p), moodFor(p), 'av-lg', p.name)}
+        <div class="grow">
+          <div class="name">${escapeHtml(p.name)}${isMe ? '<span class="you-tag">TÚ</span>' : ''}</div>
+          <div class="tiny muted" style="font-weight:700">Gastado ${fmt(p.totalPaid)} €</div>
+        </div>
+        <div class="cash ${low ? 'low' : ''}">${fmt(p.currentMoney)} €</div>
+      </div>
+      <div class="bar"><i class="${low ? 'low' : ''}" style="width:${pct}%"></i></div>
+      <div class="tokens">
+        <div class="row" style="gap:8px; flex-wrap:nowrap">
+          <span class="label" style="color:var(--ink)">Fichas</span>${renderTokenChips(tokens)}
+        </div>
+        <span class="hand" title="Cartas en mano: ${BASE_HAND} + fichas">${ic('card', 'ic-sm')}${BASE_HAND + tokens} cartas</span>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  const list = $('historyList');
+  const undoBtn = $('undoBtn');
+  const host = lobby.role !== 'spectator';
+  if (!played) {
+    list.innerHTML = `<div class="empty"><svg class="plate" aria-hidden="true"><use href="#t-plate"/></svg><span>Todavía no se ha pagado ninguna cuenta. ¡A tapear!</span></div>`;
+    undoBtn.disabled = true;
+  } else {
+    list.innerHTML = '';
+    undoBtn.disabled = false;
+    for (let i = gameState.history.length - 1; i >= 0; i--) {
+      const item = gameState.history[i];
+      let detail = '';
+      if (item.type === 'normal') detail = `Pagó <strong>${escapeHtml(item.payers[0]?.name || '')}</strong>`;
+      else if (item.type === 'a_medias') detail = `A Medias: <strong>${escapeHtml(item.payers[0]?.name || '')}</strong> y <strong>${escapeHtml(item.payers[1]?.name || '')}</strong> · ${fmt(item.amountPerPerson)} € c/u`;
+      else detail = `A Pachas entre ${item.payers.length} · ${fmt(item.amountPerPerson)} € c/u`;
+      const row = document.createElement('div');
+      row.className = 'hitem';
+      row.innerHTML = `
+        <span class="r">R${item.round}</span>
+        <div class="txt">${detail}<small>+1 ficha para ${escapeHtml(item.tokenReceiverName || item.payers[0]?.name || '')}${item.edited ? ' · <span class="edited">corregida</span>' : ''}</small></div>
+        <span class="amt">${fmt(item.amount)} €</span>
+        ${host ? `<button type="button" class="btn btn-icon" onclick="openEditEntry(${i})" aria-label="Corregir la cuenta de la ronda ${item.round}">${ic('pencil', 'ic-sm')}</button>` : ''}`;
+      list.appendChild(row);
+    }
+  }
+
+  $('nightTotal').textContent = `${fmt(gameState.history.reduce((t, h) => t + (Number(h.amount) || 0), 0))} €`;
+  { const tot = gameState.history.reduce((t, h) => t + (Number(h.amount) || 0), 0);
+    $('invDate').textContent = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    $('invTable').textContent = `${gameState.players.length} comensales`;
+    $('invCount').textContent = String(gameState.history.length);
+    $('invBase').textContent = `${fmt(tot / 1.1)} €`;
+    $('invTax').textContent = `${fmt(tot - tot / 1.1)} €`; }
+  saveLocalGame();
+  renderLobbyBar();
+  renderMeBar();
+  applyRoleUI();
+  if (!skipSync) syncLobby();
+}
+
+// --- MODAL DE PAGO (nuevo o edición) ---
+function openPayModal(type = 'normal', idx = null) {
+  editIndex = Number.isInteger(idx) ? idx : null;
+  const editing = editIndex !== null ? gameState.history[editIndex] : null;
+  $('payModalError').hidden = true;
+  $('payAmountInput').value = editing ? editing.amount : '';
+  $('payModalTitle').innerHTML = editing
+    ? `${ic('pencil', 'ic-lg')}Corregir ronda ${editing.round}`
+    : `${ic('receipt', 'ic-lg')}Pedir la cuenta`;
+  $('payConfirmBtn').textContent = editing ? 'Guardar corrección' : 'Confirmar pago';
+  $('payDeleteBtn').hidden = !editing;
+
+  if (editing && editing.type === 'normal') gameState.selectedSinglePayerId = editing.payers[0]?.id;
+  if (!gameState.selectedSinglePayerId || !findPlayer(gameState.selectedSinglePayerId)) {
+    gameState.selectedSinglePayerId = gameState.players[0]?.id || null;
+  }
+  setPayType(editing ? editing.type : type);
+
+  if (editing && editing.type === 'a_medias') {
+    $('aMediasP1').value = editing.payers[0]?.id || '';
+    $('aMediasP2').value = editing.payers[1]?.id || '';
+  }
+  if (editing && editing.type === 'a_pachas') {
+    const ids = editing.payers.map(p => p.id);
+    document.querySelectorAll('.apachas-cb').forEach(cb => { cb.checked = ids.includes(cb.value); });
+    if (editing.tokenReceiverId) $('aPachasRequester').value = editing.tokenReceiverId;
+  }
+  updateSplitPreview();
+  $('payModal').hidden = false;
+}
+function openEditEntry(i) { openPayModal(null, i); }
+function closePayModal() { $('payModal').hidden = true; editIndex = null; }
+
+function setPayType(type) {
+  gameState.payType = type;
+  $('payTypeNormal').setAttribute('aria-pressed', String(type === 'normal'));
+  $('payTypeAMedias').setAttribute('aria-pressed', String(type === 'a_medias'));
+  $('payTypeAPachas').setAttribute('aria-pressed', String(type === 'a_pachas'));
+  $('sectionSinglePayer').hidden = type !== 'normal';
+  $('sectionAMedias').hidden = type !== 'a_medias';
+  $('sectionAPachas').hidden = type !== 'a_pachas';
+  if (type === 'normal') renderSinglePayerOptions();
+  if (type === 'a_medias') renderAMediasOptions();
+  if (type === 'a_pachas') renderAPachasOptions();
+  updateSplitPreview();
+}
+
+function updateSplitPreview() {
+  const preview = $('splitPreview');
+  const amount = roundEuro($('payAmountInput').value);
+  let n = 1;
+  if (gameState.payType === 'a_medias') n = 2;
+  if (gameState.payType === 'a_pachas') n = document.querySelectorAll('.apachas-cb:checked').length;
+  if (gameState.payType === 'normal' || amount <= 0 || n <= 0) { preview.hidden = true; return; }
+  preview.textContent = `Cada uno paga ${fmt(amount / n)} €`;
+  preview.hidden = false;
+}
+
+function renderSinglePayerOptions() {
+  const list = $('singlePayerList');
+  list.innerHTML = '';
+  gameState.players.forEach(p => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'payer';
+    btn.setAttribute('aria-pressed', String(gameState.selectedSinglePayerId === p.id));
+    btn.onclick = () => { gameState.selectedSinglePayerId = p.id; renderSinglePayerOptions(); };
+    btn.innerHTML = `${avatarSvg(avIndex(p), 'ok', 'av-sm', p.name)}<span class="n">${escapeHtml(p.name)}</span><span class="m">${fmt(p.currentMoney)} €</span>`;
+    list.appendChild(btn);
+  });
+}
+
+function renderAMediasOptions() {
+  const s1 = $('aMediasP1'), s2 = $('aMediasP2');
+  s1.innerHTML = ''; s2.innerHTML = '';
+  gameState.players.forEach(p => {
+    s1.add(new Option(`${p.name} (${fmt(p.currentMoney)} €)`, p.id));
+    s2.add(new Option(`${p.name} (${fmt(p.currentMoney)} €)`, p.id));
+  });
+  if (gameState.players.length > 1) s2.selectedIndex = 1;
+}
+
+function renderAPachasOptions() {
+  const box = $('aPachasCheckboxes');
+  box.innerHTML = '';
+  const req = $('aPachasRequester');
+  req.innerHTML = '';
+  gameState.players.forEach(p => req.add(new Option(p.name, p.id)));
+  gameState.players.forEach(p => {
+    const label = document.createElement('label');
+    label.className = 'check';
+    label.innerHTML = `
+      <span class="row" style="gap:8px; flex-wrap:nowrap">
+        <input type="checkbox" value="${p.id}" checked onchange="updateSplitPreview()" class="apachas-cb">
+        ${avatarSvg(avIndex(p), 'ok', 'av-sm', p.name)}<span>${escapeHtml(p.name)}</span>
+      </span>
+      <span class="tiny muted">${fmt(p.currentMoney)} €</span>`;
+    box.appendChild(label);
+  });
+}
+
+function showPayError(msg) { const e = $('payModalError'); e.textContent = msg; e.hidden = false; }
+
+function processPayment() {
+  const amount = roundEuro(parseFloat($('payAmountInput').value));
+  if (!(amount > 0)) { showPayError('Escribe el importe de la cuenta, por ejemplo 120.'); return; }
+
+  let payers = [];
+  let amountPerPerson = 0;
+  let tokenReceiverId = null;
+
+  if (gameState.payType === 'normal') {
+    const payer = findPlayer(gameState.selectedSinglePayerId);
+    if (!payer) { showPayError('Elige quién paga la cuenta.'); return; }
+    payers = [payer];
+    amountPerPerson = amount;
+    tokenReceiverId = payer.id;
+  } else if (gameState.payType === 'a_medias') {
+    const id1 = $('aMediasP1').value, id2 = $('aMediasP2').value;
+    if (id1 === id2) { showPayError('A Medias necesita dos personas distintas.'); return; }
+    payers = [findPlayer(id1), findPlayer(id2)];
+    amountPerPerson = roundEuro(amount / 2);
+    tokenReceiverId = id1;
+  } else {
+    const ids = Array.from(document.querySelectorAll('.apachas-cb:checked')).map(cb => cb.value);
+    if (!ids.length) { showPayError('Marca al menos a una persona para repartir A Pachas.'); return; }
+    payers = gameState.players.filter(p => ids.includes(p.id));
+    amountPerPerson = roundEuro(amount / payers.length);
+    tokenReceiverId = $('aPachasRequester').value;
+  }
+
+  const receiver = findPlayer(tokenReceiverId);
+  const item = {
+    round: 0,
+    amount,
+    type: gameState.payType,
+    payers: payers.map(p => ({ id: p.id, name: p.name })),
+    amountPerPerson,
+    tokenReceiverId,
+    tokenReceiverName: receiver ? receiver.name : ''
+  };
+
+  if (editIndex !== null && gameState.history[editIndex]) {
+    item.edited = true;
+    gameState.history[editIndex] = item;
+  } else {
+    gameState.history.push(item);
+  }
+  closePayModal();
+  recomputeFromHistory();
+  afterHistoryChange();
+}
+
+function promptDeleteEntry() {
+  const idx = editIndex;
+  if (idx === null) return;
+  const h = gameState.history[idx];
+  $('payModal').hidden = true;
+  showConfirmModal(`¿Borrar la ronda ${h.round}?`, `Se quita la cuenta de ${fmt(h.amount)} € y su ficha. Las rondas siguientes se renumeran.`, () => {
+    gameState.history.splice(idx, 1);
+    editIndex = null;
+    recomputeFromHistory();
+    afterHistoryChange();
+  }, () => { $('payModal').hidden = false; });
+}
+
+function undoLastRound() {
+  if (!gameState.history.length) return;
+  gameState.history.pop();
+  recomputeFromHistory();
+  afterHistoryChange();
+}
+
+function startNewMatchSamePlayers() {
+  gameState.history = [];
+  gameState.overId = null;
+  recomputeFromHistory();
+  showView('game');
+  renderGameBoard();
+}
+
+function backToFix() {
+  showView('game');
+  renderGameBoard(true);
+  const h = $('historyList');
+  if (h) h.scrollIntoView({ block: 'center' });
+}
+
+// --- CALCULADORA ---
+function buildKeys() {
+  const plus = $('keysPlus'), minus = $('keysMinus');
+  for (let v = 10; v <= 100; v += 10) {
+    const a = document.createElement('button'); a.type = 'button'; a.textContent = `+${v}`; a.onclick = () => addTapaCard(v); plus.appendChild(a);
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = `−${v}`; b.onclick = () => addTapaCard(-v); minus.appendChild(b);
+  }
+}
+function addTapaCard(v) { tapasList.push(v); renderTapasCalc(); }
+function undoTapa() { if (tapasList.length) { tapasList.pop(); renderTapasCalc(); } }
+function clearTapas() { tapasList = []; $('calcTapas').value = 0; renderTapasCalc(); }
+function renderTapasCalc() {
+  const display = $('tapasHistoryDisplay');
+  const sum = tapasList.reduce((a, b) => a + b, 0);
+  if (!tapasList.length) display.textContent = 'Sin tapas ni restas todavía';
+  else {
+    const txt = tapasList.map((v, i) => i === 0 ? `${v > 0 ? '+' : ''}${v}` : (v >= 0 ? `+ ${v}` : `− ${Math.abs(v)}`)).join(' ');
+    display.textContent = `${txt} = ${fmt(sum)} €`;
+    display.scrollTop = display.scrollHeight;
+    $('calcTapas').value = sum;
+  }
+  updateCalcTotal();
+}
+function openCalculatorModal() {
+  clearTapas();
+  $('calcWineCount').value = '0';
+  updateCalcTotal();
+  $('calculatorModal').hidden = false;
+}
+function closeCalculatorModal() { $('calculatorModal').hidden = true; }
+function adjustWineCount(d) { const el = $('calcWineCount'); el.value = Math.max(0, (parseInt(el.value) || 0) + d); updateCalcTotal(); }
+function calculateWineSubtotal(n) { if (n <= 0) return 0; return Math.floor(n / 5) * 240 + WINE_PRICES_SINGLE_SET[n % 5]; }
+function setupCalculatorInputs() {
+  ['calcTapas', 'calcWineCount'].forEach(id => $(id).addEventListener('input', updateCalcTotal));
+}
+function updateCalcTotal() {
+  const tapas = parseFloat($('calcTapas').value) || 0;
+  const wine = calculateWineSubtotal(parseInt($('calcWineCount').value) || 0);
+  $('calcWineSubtotalDisplay').textContent = `${fmt(wine)} €`;
+  const total = roundEuro(tapas + wine);
+  $('calcTotalDisplay').textContent = `${fmt(total)} €`;
+  return total;
+}
+function useCalculatedAmount() {
+  const total = updateCalcTotal();
+  closeCalculatorModal();
+  openPayModal('normal');
+  $('payAmountInput').value = roundEuro(total);
+}
+
+// --- CONFIRMACIONES Y VISTAS ---
+function promptResetMatch() {
+  showConfirmModal('¿Reiniciar la partida?', 'Se borra el historial y las fichas, y todos vuelven a sus ahorros iniciales.', startNewMatchSamePlayers);
+}
+function promptResetToHome() {
+  const inGame = !$('viewGame').hidden, inOver = !$('viewGameOver').hidden;
+  if (!inGame && !inOver) return;
+  if (lobby.role === 'spectator') { showConfirmModal('¿Salir del lobby?', 'Dejarás de ver la partida en directo.', () => leaveLobby()); return; }
+  showConfirmModal('¿Volver al inicio?',
+    lobby.role === 'host' ? 'Saldrás de la partida y se cerrará el lobby: los demás dejarán de verla.' : 'Saldrás de la partida para cambiar nombres o número de jugadores.',
+    () => showView('setup'));
+}
+let confirmCancel = null;
+function showConfirmModal(title, desc, onExecute, onCancel) {
+  $('confirmModalTitle').textContent = title;
+  $('confirmModalDesc').textContent = desc;
+  confirmCancel = onCancel || null;
+  $('confirmModalExecuteBtn').onclick = () => { confirmCancel = null; closeConfirmModal(); if (typeof onExecute === 'function') onExecute(); };
+  $('confirmModal').hidden = false;
+}
+function closeConfirmModal() {
+  $('confirmModal').hidden = true;
+  const c = confirmCancel; confirmCancel = null;
+  if (typeof c === 'function') c();
+}
+
+function triggerGameOver(bankrupt) {
+  const alreadyOver = !$('viewGameOver').hidden;
+  gameState.overId = bankrupt.id;
+  renderGameBoard();
+  const ranked = getRankedPlayers();
+  const winner = ranked[0];
+  $('bankruptMessage').innerHTML = `<strong>${escapeHtml(bankrupt.name)}</strong> se quedó con <strong>${fmt(bankrupt.currentMoney)} €</strong> y la partida termina.`;
+
+  const podium = $('podiumContainer');
+  podium.innerHTML = '';
+  const top = ranked.slice(0, 3);
+  const order = top.length >= 3 ? [top[1], top[0], top[2]] : top;
+  order.forEach(p => {
+    if (!p) return;
+    const pos = ranked.indexOf(p) + 1;
+    const first = p.id === winner.id;
+    const col = document.createElement('div');
+    col.className = `pod ${first ? 'first' : ''}`;
+    col.innerHTML = `
+      ${avatarSvg(avIndex(p), first ? 'happy' : moodFor(p), first ? 'av-xl' : 'av-lg', p.name)}
+      <div class="name">${escapeHtml(p.name)}</div>
+      <div class="display" style="font-size:18px">${fmt(p.currentMoney)} €</div>
+      <div class="step" style="height:${first ? 96 : pos === 2 ? 68 : 48}px">${first ? ic('crown', 'ic-lg') : pos + 'º'}</div>`;
+    podium.appendChild(col);
+  });
+
+  const board = $('finalLeaderboardList');
+  board.innerHTML = '';
+  ranked.forEach((p, i) => {
+    const li = document.createElement('div');
+    li.className = 'li';
+    li.innerHTML = `
+      <strong style="width:24px">${i + 1}º</strong>
+      ${avatarSvg(avIndex(p), p.id === bankrupt.id ? 'sad' : 'ok', 'av-sm', p.name)}
+      <span class="grow" style="font-weight:800">${escapeHtml(p.name)}${p.id === myPlayerId ? '<span class="you-tag">TÚ</span>' : ''}</span>
+      <span class="tiny muted" style="font-weight:800">${p.extraTokens || 0} fichas</span>
+      <span class="display" style="font-size:17px">${fmt(p.currentMoney)} €</span>`;
+    board.appendChild(li);
+  });
+
+  if (!alreadyOver && !quietOver && typeof confetti === 'function' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 }, colors: ['#CBE3F4', '#BFE3C8', '#F7E8A6', '#B4DFDA', '#F8D2B8'] });
+  }
+  showView('gameOver');
+}
+
+function openRulesModal() { $('rulesModal').hidden = false; }
+function closeRulesModal() { $('rulesModal').hidden = true; }
+
+function showView(name) {
+  if (name === 'setup' && lobby.role) { if (lobby.role === 'host') closeLobby(); else teardownLobby(); }
+  if (name === 'setup') clearLocalGame();
+  $('viewSetup').hidden = name !== 'setup';
+  $('viewGame').hidden = name !== 'game';
+  $('viewGameOver').hidden = name !== 'gameOver';
+  $('headerResetBtn').hidden = !(name === 'game' && lobby.role !== 'spectator');
+  if (name === 'setup') renderPlayerInputs();
+  applyRoleUI();
+}
+
+// ======================================================================
+// LOBBY EN LÍNEA (db compartida + sala en vivo)
+// El anfitrión escribe la partida en games/<código>; los demás la leen.
+// ======================================================================
+const lobby = { db: null, room: null, role: null, code: null, nick: '', unsub: null, named: null, unPeers: null, peers: [], error: '' };
+let lobbySyncing = false;
+let lobbyPending = false;
+const CODE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+
+// ---- Quién soy yo ----
+let myPlayerId = null;
+let meDismissed = false;
+function meKey() { return 'lacuenta_me_' + (lobby.code || 'local'); }
+function loadMyChoice() { myPlayerId = storeGet(meKey()) || null; }
+
+function presenceFor() {
+  const me = findPlayer(myPlayerId);
+  return {
+    name: me ? me.name : (lobby.role === 'host' ? 'Anfitrión' : 'Invitado'),
+    avatar: me ? avIndex(me) : -1,
+    playerId: me ? me.id : '',
+    role: lobby.role
+  };
+}
+function updateMyPresence() { if (lobby.named) lobby.named.presence(presenceFor()).catch(() => {}); }
+
+function selectMe(id) {
+  myPlayerId = id;
+  if (id) meDismissed = false;
+  storeSet(meKey(), id || '');
+  updateMyPresence();
+  if (!$('viewGameOver').hidden) { const o = findPlayer(gameState.overId); if (o) { triggerGameOver(o); return; } }
+  renderGameBoard(true);
+}
+
+function renderMeBar() {
+  const bar = $('meBar');
+  if (!gameState.players.length) { bar.hidden = true; bar.innerHTML = ''; return; }
+  const me = findPlayer(myPlayerId);
+  if (!me) {
+    if (meDismissed && lobby.role !== 'spectator') { bar.hidden = true; bar.innerHTML = ''; return; }
+    const taken = lobby.peers.filter(p => !p.isMe).map(p => (p.presence && p.presence.playerId) || '');
+    const buttons = gameState.players.map(p =>
+      `<button type="button" onclick="selectMe('${p.id}')">${avatarSvg(avIndex(p), 'ok', 'av-sm', p.name)}<span>${escapeHtml(p.name)}</span>${taken.includes(p.id) ? '<span class="online">conectado</span>' : ''}</button>`).join('');
+    bar.className = 'piece pad mebar';
+    bar.innerHTML = `
+      <div class="display" style="font-size:24px; line-height:1.1">¿Quién eres tú?</div>
+      <p class="small" style="font-weight:700; margin-top:2px">Toca tu nombre y verás tus ahorros y tus cartas destacados.</p>
+      <div class="picker">${buttons}</div>
+      ${lobby.role !== 'spectator' ? `<button type="button" class="link small" style="margin-top:12px" onclick="meDismissed = true; renderMeBar();">Ahora no</button>` : ''}`;
+    bar.hidden = false;
+    return;
+  }
+  const ranked = getRankedPlayers();
+  const place = ranked.findIndex(p => p.id === me.id) + 1;
+  const low = me.currentMoney <= 200;
+  bar.className = 'piece pad mebar';
+  bar.innerHTML = `
+    <div class="row between" style="flex-wrap:nowrap">
+      <div class="row" style="flex-wrap:nowrap; min-width:0">
+        ${avatarSvg(avIndex(me), moodFor(me), 'av-lg', me.name)}
+        <div style="min-width:0">
+          <div class="label" style="color:var(--ink)">Tú · ${escapeHtml(me.name)}</div>
+          <div class="money ${low ? 'cash low' : ''}" style="margin-top:4px">${fmt(me.currentMoney)} €</div>
+        </div>
+      </div>
+      <button type="button" class="btn btn-sm" onclick="selectMe(null)">No soy yo</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>${place}º</b><span>de ${ranked.length}</span></div>
+      <div class="stat"><b>${me.extraTokens || 0}</b><span>fichas</span></div>
+      <div class="stat"><b>${BASE_HAND + (me.extraTokens || 0)}</b><span>cartas en mano</span></div>
+    </div>`;
+  bar.hidden = false;
+}
+
+function genCode() { let c = ''; for (let i = 0; i < 4; i++) c += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]; return c; }
+function storeGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+function storeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+// ---- Firebase Realtime Database con la misma forma que db/room ----
+function loadScript(src) {
+  return new Promise((res, rej) => { const el = document.createElement('script'); el.src = src; el.onload = res; el.onerror = rej; document.head.appendChild(el); });
+}
+async function makeFirebaseBackend(cfg) {
+  const V = '10.12.2';
+  await loadScript(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);
+  await loadScript(`https://www.gstatic.com/firebasejs/${V}/firebase-database-compat.js`);
+  const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(cfg);
+  const rdb = app.database();
+  const wrap = snap => ({ exists: snap.exists(), data: () => snap.val() });
+  const db = {
+    doc(path) {
+      const ref = rdb.ref(path);
+      return {
+        set: o => ref.set(o),
+        update: o => ref.update(o),
+        get: () => ref.get().then(wrap),
+        onSnapshot(cb, onErr) { const h = snap => cb(wrap(snap)); ref.on('value', h, onErr); return () => ref.off('value', h); }
+      };
+    }
+  };
+  const room = {
+    async join(name) {
+      const base = rdb.ref('presence/' + String(name).replace(/[.#$\[\]\/]/g, '_'));
+      const me = base.push();
+      await me.onDisconnect().remove();
+      let handler = null;
+      return {
+        presence: pr => me.set({ ...pr, t: firebase.database.ServerValue.TIMESTAMP }),
+        onPeers(cb) {
+          handler = snap => { const v = snap.val() || {}; cb({ peers: Object.keys(v).map(k => ({ kind: 'viewer', isMe: k === me.key, presence: v[k] })) }); };
+          base.on('value', handler);
+          return () => base.off('value', handler);
+        },
+        leave() { if (handler) base.off('value', handler); me.onDisconnect().cancel(); return me.remove(); }
+      };
+    }
+  };
+  return { db, room };
+}
+
+// ---- Guardar la partida para que sobreviva a recargas ----
+const SAVE_KEY = 'lacuenta_partida_v1';
+const WATCH_KEY = 'lacuenta_mirando';
+let quietOver = false;
+function saveLocalGame() {
+  if (lobby.role === 'spectator' || !gameState.players.length) return;
+  storeSet(SAVE_KEY, JSON.stringify({
+    t: Date.now(),
+    playerCount: gameState.playerCount,
+    initialBudget: gameState.initialBudget,
+    players: gameState.players.map(p => ({ id: p.id, name: p.name, avatar: avIndex(p) })),
+    history: gameState.history,
+    myPlayerId,
+    hostCode: lobby.role === 'host' ? lobby.code : null
+  }));
+}
+function clearLocalGame() { storeSet(SAVE_KEY, ''); storeSet(WATCH_KEY, ''); }
+function restoreLocalGame() {
+  let saved = null;
+  try { saved = JSON.parse(storeGet(SAVE_KEY) || 'null'); } catch (e) { saved = null; }
+  if (saved && Array.isArray(saved.players) && saved.players.length) {
+    gameState.playerCount = saved.playerCount || saved.players.length;
+    gameState.initialBudget = saved.initialBudget || BUDGET_TABLE[gameState.playerCount] || 900;
+    gameState.players = saved.players.map(p => ({ ...p, currentMoney: gameState.initialBudget, totalPaid: 0, extraTokens: 0 }));
+    gameState.history = Array.isArray(saved.history) ? saved.history : [];
+    gameState.overId = null;
+    gameState.selectedSinglePayerId = gameState.players[0].id;
+    recomputeFromHistory();
+    myPlayerId = saved.myPlayerId || null;
+    if (saved.hostCode && lobby.db) {
+      lobby.code = saved.hostCode; lobby.role = 'host'; lobby.nick = 'Anfitrión';
+      storeSet(meKey(), myPlayerId || '');
+      joinPresence();
+    }
+    showView('game');
+    quietOver = true;
+    afterHistoryChange();
+    quietOver = false;
+    return;
+  }
+  const watch = storeGet(WATCH_KEY);
+  if (watch && lobby.db && /^[A-Z0-9]{4}$/.test(watch)) { setSetupTab('join'); $('joinCode').value = watch; joinLobbyFromForm(); }
+}
+
+async function initLobbyUI() {
+  const hash = (location.hash || '').replace('#', '').toUpperCase();
+  if (/^[A-Z0-9]{4}$/.test(hash)) { $('joinCode').value = hash; setSetupTab('join'); }
+  $('joinCode').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
+  try {
+    if (window.claude && typeof window.claude.use === 'function') {
+      lobby.db = await window.claude.use('db');
+      lobby.room = await window.claude.use('room');
+    } else {
+      const cfg = window.LA_CUENTA_FIREBASE;
+      if (cfg && cfg.apiKey && cfg.databaseURL) { const b = await makeFirebaseBackend(cfg); lobby.db = b.db; lobby.room = b.room; }
+    }
+  } catch (e) { lobby.db = null; lobby.room = null; }
+  $('joinUnavailable').hidden = !!lobby.db;
+  $('joinBtn').disabled = !lobby.db;
+  renderLobbyBar();
+}
+
+function setSetupTab(tab) {
+  const create = tab === 'create';
+  $('setupCreate').hidden = !create;
+  $('setupJoin').hidden = create;
+  $('tabCreate').setAttribute('aria-pressed', String(create));
+  $('tabJoin').setAttribute('aria-pressed', String(!create));
+}
+
+function applyRoleUI() {
+  const spectator = lobby.role === 'spectator';
+  document.querySelectorAll('[data-host-only]').forEach(el => { el.hidden = spectator; });
+  document.querySelectorAll('[data-spectator-only]').forEach(el => { el.hidden = !spectator; });
+}
+
+function lobbySnapshot() {
+  return {
+    v: 2,
+    closed: false,
+    updatedAt: Date.now(),
+    playerCount: gameState.playerCount,
+    initialBudget: gameState.initialBudget,
+    round: gameState.round,
+    overId: gameState.overId || null,
+    players: gameState.players.map(p => ({ id: p.id, name: p.name, avatar: avIndex(p), currentMoney: p.currentMoney, totalPaid: p.totalPaid, extraTokens: p.extraTokens || 0 })),
+    history: gameState.history.map(h => ({
+      round: h.round, amount: h.amount, type: h.type, payers: h.payers, amountPerPerson: h.amountPerPerson,
+      tokenReceiverId: h.tokenReceiverId || '', tokenReceiverName: h.tokenReceiverName || '', edited: !!h.edited
+    }))
+  };
+}
+
+async function syncLobby() {
+  if (lobby.role !== 'host' || !lobby.db || !gameState.players.length) return;
+  if (lobbySyncing) { lobbyPending = true; return; }
+  lobbySyncing = true;
+  try {
+    do {
+      lobbyPending = false;
+      await lobby.db.doc('games/' + lobby.code).set(lobbySnapshot());
+      if (lobby.error) { lobby.error = ''; renderLobbyBar(); }
+    } while (lobbyPending);
+  } catch (e) {
+    lobby.error = 'No se pudo enviar la partida al lobby. Revisa tu conexión.';
+    renderLobbyBar();
+  } finally { lobbySyncing = false; }
+}
+
+async function joinPresence() {
+  if (!lobby.room) return;
+  try {
+    const r = await lobby.room.join('mesa-' + lobby.code.toLowerCase());
+    lobby.named = r;
+    await r.presence(presenceFor());
+    lobby.unPeers = r.onPeers(change => {
+      lobby.peers = change.peers.filter(p => p.kind === 'viewer');
+      renderLobbyBar();
+      renderMeBar();
+    });
+  } catch (e) { lobby.named = null; }
+}
+
+async function openLobbyFromGame() {
+  if (!lobby.db) return;
+  const btn = $('openLobbyBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Creando…'; }
+  const keepMe = myPlayerId;
+  try {
+    let code = null;
+    for (let i = 0; i < 8 && !code; i++) {
+      const c = genCode();
+      const snap = await lobby.db.doc('games/' + c).get();
+      const d = snap.exists ? snap.data() : null;
+      if (!d || d.closed || (Date.now() - (d.updatedAt || 0)) > 12 * 3600 * 1000) code = c;
+    }
+    if (!code) throw new Error('sin código');
+    lobby.code = code;
+    lobby.role = 'host';
+    myPlayerId = keepMe;
+    storeSet(meKey(), keepMe || '');
+    lobby.nick = 'Anfitrión';
+    lobby.error = '';
+    lobbySyncing = false;
+    await syncLobby();
+    joinPresence();
+  } catch (e) {
+    lobby.role = null; lobby.code = null; myPlayerId = keepMe;
+    lobby.error = 'No se pudo crear el lobby. Inténtalo de nuevo.';
+  }
+  renderGameBoard(true);
+}
+
+function teardownLobby() {
+  if (lobby.unsub) { try { lobby.unsub(); } catch (e) {} }
+  if (lobby.unPeers) { try { lobby.unPeers(); } catch (e) {} }
+  if (lobby.named) { try { lobby.named.leave(); } catch (e) {} }
+  lobby.unsub = null; lobby.unPeers = null; lobby.named = null;
+  lobby.role = null; lobby.code = null; lobby.peers = []; lobby.error = ''; myPlayerId = null; meDismissed = false;
+  lobbySyncing = false; lobbyPending = false;
+  applyRoleUI();
+}
+function closeLobby() {
+  const code = lobby.code, db = lobby.db;
+  teardownLobby();
+  if (db && code) db.doc('games/' + code).update({ closed: true, updatedAt: Date.now() }).catch(() => {});
+}
+function leaveLobby() { showView('setup'); }
+
+async function joinLobbyFromForm() {
+  const err = $('joinError');
+  const showErr = m => { err.textContent = m; err.hidden = false; };
+  err.hidden = true;
+  if (!lobby.db) { showErr('El modo en línea no está disponible en esta vista.'); return; }
+  const code = $('joinCode').value.trim().toUpperCase();
+  if (!/^[A-Z0-9]{4}$/.test(code)) { showErr('El código tiene 4 caracteres, por ejemplo K7QM.'); return; }
+  const btn = $('joinBtn');
+  btn.disabled = true; btn.textContent = 'Entrando…';
+  let first = true;
+  try {
+    const snap = await lobby.db.doc('games/' + code).get();
+    const d = snap.exists ? snap.data() : null;
+    if (!d || d.closed) { storeSet(WATCH_KEY, ''); showErr('No hay ningún lobby abierto con ese código.'); return; }
+    lobby.role = 'spectator';
+    storeSet(WATCH_KEY, code);
+    lobby.code = code;
+    loadMyChoice();
+    lobby.nick = ''; lobby.error = '';
+    gameState.players = [];
+    lobby.unsub = lobby.db.doc('games/' + code).onSnapshot(s => {
+      if (!s.exists) return;
+      applyRemote(s.data(), first);
+      first = false;
+    }, () => { lobby.error = 'Se perdió la conexión con el lobby.'; renderLobbyBar(); });
+    joinPresence();
+  } catch (e) {
+    showErr('No se pudo entrar al lobby. Inténtalo de nuevo.');
+  } finally {
+    btn.disabled = !lobby.db; btn.textContent = 'Entrar al lobby';
+  }
+}
+
+function applyRemote(d, isFirst) {
+  if (lobby.role !== 'spectator') return;
+  if (d.closed) {
+    teardownLobby();
+    showView('setup');
+    setSetupTab('join');
+    const err = $('joinError'); err.textContent = 'El anfitrión cerró el lobby.'; err.hidden = false;
+    return;
+  }
+  gameState.playerCount = d.playerCount;
+  gameState.initialBudget = d.initialBudget;
+  gameState.round = d.round;
+  gameState.players = (d.players || []).map((p, i) => ({ ...p, avatar: Number.isFinite(Number(p.avatar)) ? Number(p.avatar) : i }));
+  gameState.history = (d.history || []).map(h => ({ ...h }));
+  gameState.overId = d.overId || null;
+  if (!gameState.players.some(p => p.id === myPlayerId)) myPlayerId = null;
+  if (isFirst) { updateMyPresence(); showView('game'); }
+  const bankrupt = d.overId ? findPlayer(d.overId) : null;
+  if (bankrupt) triggerGameOver(bankrupt);
+  else {
+    if (!$('viewGameOver').hidden) showView('game');
+    renderGameBoard();
+  }
+}
+
+function copyLobbyCode() {
+  const done = () => { const b = $('copyCodeBtn'); if (b) { b.lastChild.textContent = '¡Copiado!'; setTimeout(() => { const x = $('copyCodeBtn'); if (x) x.lastChild.textContent = 'Copiar código'; }, 1500); } };
+  try { navigator.clipboard.writeText(lobby.code || '').then(done, () => {}); } catch (e) {}
+}
+
+function renderLobbyBar() {
+  const bar = $('lobbyBar');
+  const role = lobby.role;
+  if (!role) {
+    if (!lobby.db) { bar.hidden = true; bar.innerHTML = ''; return; }
+    bar.className = 'piece pad row between';
+    bar.innerHTML = `
+      <div class="row grow" style="flex-wrap:nowrap">
+        <svg class="ic ic-lg" style="color:var(--aqua-ink)"><use href="#i-live"/></svg>
+        <div style="min-width:0">
+          <div style="font-weight:900">Jugar en línea</div>
+          <p class="small muted">Crea un lobby y el resto de la mesa sigue la partida desde su móvil.</p>
+          ${lobby.error ? `<p class="tiny" style="color:var(--rose-ink); font-weight:800">${escapeHtml(lobby.error)}</p>` : ''}
+        </div>
+      </div>
+      <button type="button" id="openLobbyBtn" class="btn btn-olive" onclick="openLobbyFromGame()">Crear lobby</button>`;
+    bar.hidden = false;
+    return;
+  }
+  const isHost = role === 'host';
+  const names = lobby.peers.filter(p => !p.isMe).map(p => {
+    const pr = p.presence || {};
+    const label = escapeHtml(String(pr.name || 'Invitado').slice(0, 20));
+    const a = Number(pr.avatar);
+    const face = Number.isInteger(a) && a >= 0 && a < 8 ? avatarSvg(a, 'ok', 'av-sm', pr.name) : `<svg class="ic" style="margin-left:4px"><use href="#i-users"/></svg>`;
+    return `<span class="chip">${face}${label}${pr.role === 'host' && pr.name !== 'Anfitrión' ? ' · anfitrión' : ''}</span>`;
+  });
+  const others = names.length;
+  bar.className = 'piece pad lobby-live';
+  bar.innerHTML = `
+    <div class="row between">
+      <div class="row" style="gap:16px">
+        <div>
+          <div class="label">${isHost ? 'Tu lobby' : 'Mirando el lobby'}</div>
+          <div class="code" style="margin-top:4px">${escapeHtml(lobby.code)}</div>
+        </div>
+        <div class="row small" style="gap:6px; font-weight:800"><span class="dot ${lobby.error ? 'err' : ''}"></span>${lobby.error ? escapeHtml(lobby.error) : (isHost ? 'Transmitiendo en directo' : 'Conectado en directo')}</div>
+      </div>
+      <div class="row" style="gap:8px">
+        ${isHost ? `<button type="button" id="copyCodeBtn" class="btn btn-sm" onclick="copyLobbyCode()">${ic('copy', 'ic-sm')}<span>Copiar código</span></button>` : ''}
+        <button type="button" class="btn btn-sm" onclick="promptResetToHome()">${ic('exit', 'ic-sm')}${isHost ? 'Cerrar lobby' : 'Salir'}</button>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px; gap:6px">
+      <span class="label">${others === 0 ? (isHost ? 'Esperando invitados' : 'Solo tú por ahora') : (others === 1 ? '1 persona más' : others + ' personas más')}</span>
+      <span class="row" style="gap:6px; color:var(--ink)">${names.join('')}</span>
+    </div>
+    ${isHost ? `<p class="tiny" style="margin-top:8px; opacity:.9">Quienes se unen solo miran y marcan quién son; tú llevas la cuenta. Añade <strong>#${escapeHtml(lobby.code)}</strong> al enlace de la app para que entren con el código ya puesto.</p>` : ''}`;
+  bar.hidden = false;
+}
+
+// INICIO
+function initApp() {
+  buildKeys();
+  setPlayerCount(3);
+  setupCalculatorInputs();
+  setSetupTab('create');
+  initLobbyUI().catch(() => {}).then(restoreLocalGame);
+}
+if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', initApp);
+else initApp();
+</script>
+
+
+</body></html>
