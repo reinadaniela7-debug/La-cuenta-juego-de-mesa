@@ -1595,9 +1595,25 @@ function applyRemote(d, isFirst) {
   }
 }
 
+const PUBLIC_URL = 'https://reinadaniela7-debug.github.io/La-cuenta-juego-de-mesa/';
+function inviteLink() {
+  const base = /github\.io$/.test(location.hostname) ? location.origin + location.pathname : PUBLIC_URL;
+  return base + '#' + (lobby.code || '');
+}
+function inviteText() {
+  return `🍻 ¡Ven a jugar La Cuenta conmigo!\n\nEntra aquí: ${inviteLink()}\nCódigo de la sala: ${lobby.code}`;
+}
 function copyLobbyCode() {
-  const done = () => { const b = $('copyCodeBtn'); if (b) { b.lastChild.textContent = '¡Copiado!'; setTimeout(() => { const x = $('copyCodeBtn'); if (x) x.lastChild.textContent = 'Copiar código'; }, 1500); } };
-  try { navigator.clipboard.writeText(lobby.code || '').then(done, () => {}); } catch (e) {}
+  const text = inviteText();
+  const done = () => { const b = $('copyCodeBtn'); if (b) { b.lastChild.textContent = '¡Invitación copiada!'; setTimeout(() => { const x = $('copyCodeBtn'); if (x) x.lastChild.textContent = 'Copiar invitación'; }, 1800); } };
+  const fallback = () => {
+    try { const t = document.createElement('textarea'); t.value = text; t.style.position = 'fixed'; t.style.opacity = '0'; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); done(); } catch (e) {}
+  };
+  try { navigator.clipboard.writeText(text).then(done, fallback); } catch (e) { fallback(); }
+}
+function shareLobby() {
+  if (navigator.share) navigator.share({ title: 'La Cuenta', text: inviteText() }).catch(() => {});
+  else copyLobbyCode();
 }
 
 function renderLobbyBar() {
@@ -1639,7 +1655,7 @@ function renderLobbyBar() {
         <div class="row small" style="gap:6px; font-weight:800"><span class="dot ${lobby.error ? 'err' : ''}"></span>${lobby.error ? escapeHtml(lobby.error) : (isHost ? 'Transmitiendo en directo' : 'Conectado en directo')}</div>
       </div>
       <div class="row" style="gap:8px">
-        ${isHost ? `<button type="button" id="copyCodeBtn" class="btn btn-sm" onclick="copyLobbyCode()">${ic('copy', 'ic-sm')}<span>Copiar código</span></button>` : ''}
+        ${isHost ? `<button type="button" id="copyCodeBtn" class="btn btn-sm" onclick="copyLobbyCode()">${ic('copy', 'ic-sm')}<span>Copiar invitación</span></button>` : ''}
         <button type="button" class="btn btn-sm" onclick="promptResetToHome()">${ic('exit', 'ic-sm')}${isHost ? 'Cerrar lobby' : 'Salir'}</button>
       </div>
     </div>
@@ -1647,7 +1663,7 @@ function renderLobbyBar() {
       <span class="label">${others === 0 ? (isHost ? 'Esperando invitados' : 'Solo tú por ahora') : (others === 1 ? '1 persona más' : others + ' personas más')}</span>
       <span class="row" style="gap:6px; color:var(--ink)">${names.join('')}</span>
     </div>
-    ${isHost ? `<p class="tiny" style="margin-top:8px; opacity:.9">Quienes se unen solo miran y marcan quién son; tú llevas la cuenta. Añade <strong>#${escapeHtml(lobby.code)}</strong> al enlace de la app para que entren con el código ya puesto.</p>` : ''}`;
+    ${isHost ? `<p class="tiny" style="margin-top:8px; opacity:.9">Quienes se unen solo miran y marcan quién son; tú llevas la cuenta. Pulsa <strong>Copiar invitación</strong> y pégala en WhatsApp: lleva el enlace con el código ya puesto.</p>` : ''}`;
   bar.hidden = false;
 }
 
